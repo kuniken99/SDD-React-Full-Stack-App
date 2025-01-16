@@ -1,0 +1,47 @@
+html {
+    scroll-behavior: smooth;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 1rem;
+}
+
+.navbar-logo img {
+    height: 50px;
+}
+
+.navbar-links a {
+    color: white;
+    text-decoration: none;
+    margin: 0 1rem;
+}
+
+.navbar-buttons a {
+    color: white;
+    text-decoration: none;
+    margin: 0 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #555;
+    border-radius: 5px;
+}
+
+.navbar-buttons a:hover {
+    background-color: #777;
+}
+
+/* filepath: /d:/LEARN REACT 2/frontend/src/styles/Home.css */
+section {
+    padding: 2rem;
+    border-bottom: 1px solid #ccc;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #333;
+    color: white;
+}
