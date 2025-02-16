@@ -1,0 +1,32 @@
+.company-info-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 50px;
+    gap: 50px;
+}
+
+.company-logo {
+    height: auto;
+}
+
+.company-details {
+    width: 60%;
+}
+
+.company-details h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+
+.company-details h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.company-details p {
+    font-size: 1rem;
+    margin-top: 5px;
+}

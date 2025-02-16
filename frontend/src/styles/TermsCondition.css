@@ -1,0 +1,33 @@
+.terms-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 50px;
+    gap: 50px;
+}
+
+.terms-details {
+    width: 60%;
+}
+
+.terms-container h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 40px;
+}
+
+.terms-container h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.terms-container ul {
+    padding-left: 20px;
+}
+
+.terms-container ul li {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}

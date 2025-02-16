@@ -1,0 +1,33 @@
+.privacy-container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 50px;
+    gap: 50px;
+}
+
+.privacy-policy-container {
+    width: 60%;
+}
+
+.privacy-policy-container h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 40px;
+}
+
+.privacy-policy-container h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.privacy-policy-container ul {
+    padding-left: 20px;
+}
+
+.privacy-policy-container ul li {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}

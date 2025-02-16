@@ -6,42 +6,49 @@ html {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #333;
-    padding: 1rem;
+    background-color: #D5C9D7;
+    padding: 5px 30px;
+    font-size: 18px;
 }
 
 .navbar-logo img {
-    height: 50px;
+    height: 56px;
 }
 
-.navbar-links a {
-    color: white;
+.navbar-links {
+    color: #844881;
+    display: flex;
+    margin-left: auto;
+    gap: 2rem; /* Space between links */
+    cursor: pointer;
     text-decoration: none;
-    margin: 0 1rem;
 }
 
+.navbar-links a:first-child {
+    font-weight:bold;
+    text-decoration: none;
+    color: black;
+}
+/* Default button styling */
 .navbar-buttons a {
-    color: white;
     text-decoration: none;
-    margin: 0 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #555;
+    margin: 0 5px;
+    padding: 0.5rem 10px;
     border-radius: 5px;
 }
 
-.navbar-buttons a:hover {
-    background-color: #777;
+/* signup button (darker color with white text) */
+.navbar-buttons a.signup {
+    background-color: #844881;  /* Dark blue/gray color for Login */
+    color: white;  /* White text */
 }
 
-/* filepath: /d:/LEARN REACT 2/frontend/src/styles/Home.css */
-section {
-    padding: 2rem;
-    border-bottom: 1px solid #ccc;
+.navbar-buttons a.signup:hover {
+    background-color: #6b2567;  /* Slightly darker blue on hover */
 }
 
-footer {
-    text-align: center;
-    padding: 1rem;
-    background-color: #333;
-    color: white;
+
+
+.separator {
+    margin-right: 20px;
 }
