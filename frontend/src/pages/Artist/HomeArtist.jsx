@@ -46,7 +46,7 @@ const HomeArtist = () => {
             <section className="hero">
                 <div className="section-content">
                     <div className="hero-content">
-                        <h1>WELCOME, {artistInfo.fullName.toUpperCase()}!</h1>
+                        <h1>WELCOME, {artistInfo.full_name.toUpperCase()}!</h1>
                         
                         
                         <p>Email: {artistInfo.email}</p>
@@ -57,7 +57,7 @@ const HomeArtist = () => {
                         
                         
                         
-                        <p className="attendance">Attendance Rate: 90% <Link to="/ViewAttendance" className="view-more">View More</Link></p>
+                        <p className="attendance">Attendance Rate: {artistInfo.attendance_rate}% <Link to="/ViewAttendance" className="view-more">View More</Link></p>
                         <div className="hero-buttons">
                             <Link to="/ClubActivities" className="btn-primary">View Club Activities</Link>
                             <Link to="/ManageInjury" className="btn-secondary">+ Report New Injury</Link>
@@ -70,6 +70,7 @@ const HomeArtist = () => {
                                 <p><strong>Coach:</strong> John Doe</p>
                                 <p><strong>Status:</strong> Present</p>
                             </div>
+                            <Link to="/TrainingSessions" className="btn-primary">View All Trainings</Link>
                         </div>
                     </div>
                     <img src={HomeDance} alt="Dancing Performance" className="hero-image" />

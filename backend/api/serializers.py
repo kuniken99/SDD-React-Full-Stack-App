@@ -1,15 +1,15 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
-from .models import User, Artist, TrainingSession, TrainingAttendance, Injury
 import requests
 from django.conf import settings
+from .models import User, Artist, Coach, Director, TrainingSession, TrainingAttendance, Injury, ClubActivity
 
 # ---------------------- User Serializer ----------------------
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'full_name', 'email', 'role', 'dob', 'guardian_name']
+        fields = ['id', 'full_name', 'email', 'role', 'dob', 'coach_name', 'guardian_name']
 
 # ---------------------- Register Serializer ----------------------
 class RegisterSerializer(serializers.ModelSerializer):
@@ -32,6 +32,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('confirmPassword')  # Remove confirmPassword field before saving
+        
+        # Create user
         user = User.objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
@@ -83,28 +85,74 @@ class CaptchaSerializer(serializers.Serializer):
         if not response.get('success'):
             raise serializers.ValidationError('Invalid reCAPTCHA')
         return value
+    
+# ---------------------- Artist Serializer ----------------------
+class ArtistSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    total_sessions = serializers.IntegerField(source="total_sessions", read_only=True)
+    total_training_hours = serializers.IntegerField(source="total_training_hours", read_only=True)
+    total_performance_hours = serializers.IntegerField(source="total_performance_hours", read_only=True)
+    attendance_rate = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
 
-# ---------------------- Training Session Serializer ----------------------
+    class Meta:
+        model = Artist
+        fields = ['id', 'user', 'total_sessions', 'total_training_hours', 'total_performance_hours', 'attendance_rate']
+
+# Coach Serializer
+class CoachSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Coach
+        fields = ['id', 'user']
+
+# Director Serializer
+class DirectorSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Director
+        fields = ['id', 'user']
+
+# Training Session Serializer
 class TrainingSessionSerializer(serializers.ModelSerializer):
-    coach_name = serializers.CharField(source='coach.user.full_name', read_only=True)
+    coach = CoachSerializer()
+    artists = ArtistSerializer(many=True, read_only=True)
+    duration = serializers.IntegerField()
+    location = serializers.CharField(max_length=255)
 
     class Meta:
         model = TrainingSession
-        fields = ['id', 'name', 'date', 'coach', 'coach_name']
+        fields = ['id', 'name', 'coach', 'date', 'artists', 'duration', 'location']
 
-# ---------------------- Training Attendance Serializer ----------------------
+# Training Attendance Serializer
 class TrainingAttendanceSerializer(serializers.ModelSerializer):
-    artist_name = serializers.CharField(source='artist.user.full_name', read_only=True)
-    session_name = serializers.CharField(source='session.name', read_only=True)
+    artist = ArtistSerializer()
+    session = TrainingSessionSerializer()
+    status = serializers.ChoiceField(choices=TrainingAttendance.STATUS_CHOICES)
+    coach_remarks = serializers.CharField(required=False)
 
     class Meta:
         model = TrainingAttendance
-        fields = ['id', 'artist', 'artist_name', 'session', 'session_name', 'status', 'coach_remarks']
+        fields = ['id', 'artist', 'session', 'status', 'coach_remarks']
 
-# ---------------------- Injury Serializer ----------------------
+# Injury Serializer
 class InjurySerializer(serializers.ModelSerializer):
-    artist_name = serializers.CharField(source='artist.user.full_name', read_only=True)
+    artist = ArtistSerializer()
+    date = serializers.DateField()
+    injury_type = serializers.CharField(max_length=255)
+    severity = serializers.ChoiceField(choices=[('Mild', 'Mild'), ('Moderate', 'Moderate'), ('Severe', 'Severe')])
+    coach_remarks = serializers.CharField(required=False)
 
     class Meta:
         model = Injury
-        fields = ['id', 'artist', 'artist_name', 'date', 'injury_type', 'severity', 'coach_remarks']
+        fields = ['id', 'artist', 'date', 'injury_type', 'severity', 'coach_remarks']
+
+# Club Activity Serializer
+class ClubActivitySerializer(serializers.ModelSerializer):
+    registered_participants = ArtistSerializer(many=True, read_only=True)
+    status = serializers.ChoiceField(choices=ClubActivity.STATUS_CHOICES)
+
+    class Meta:
+        model = ClubActivity
+        fields = ['id', 'name', 'date', 'location', 'max_participants', 'registered_participants', 'status']

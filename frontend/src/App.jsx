@@ -14,6 +14,8 @@ import Home from "./pages/Home"; // Public home page
 import HomeArtist from "./pages/Artist/HomeArtist";
 import HomeCoach from "./pages/Coach/HomeCoach";
 import HomeDirector from "./pages/Director/HomeDirector";
+import ArtistProfile from "./pages/Artist/ArtistProfile";
+
 import "./App.css";
 
 function Logout() {
@@ -70,6 +72,8 @@ function App() {
         <Route path="/HomeArtist" element={<HomeArtist />} />
         <Route path="/HomeCoach" element={<HomeCoach />} />
         <Route path="/HomeDirector" element={<HomeDirector />} />
+
+        <Route path="/profile" element={<ArtistProfile />} />
       </Routes>
 
       <PublicFooter />

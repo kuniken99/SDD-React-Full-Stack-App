@@ -127,6 +127,10 @@ h2 {
     margin-top: 30px;
 }
 
+.recent-training .btn-primary {
+    margin-top: 20px;
+}
+
 .homeArtist .btn-primary,
 .homeArtist .btn-secondary {
     display: inline-block;
