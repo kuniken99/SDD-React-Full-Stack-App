@@ -9,7 +9,7 @@
 }
 
 /* Hero Section */
-.hero {
+.home .hero {
     background: linear-gradient(to right, #D5C9D7, #6b2567); /* Blue gradient */
     display: flex;
     align-items: center;
@@ -36,7 +36,7 @@
     color: black;
 }
 
-.hero p {
+.home .hero p {
     font-size: 20px;
     opacity: 0.6;
     margin-right: 30px;

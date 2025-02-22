@@ -61,7 +61,8 @@ function Navbar() {
                 {role === "artist" && (
                     <>
                         <Link to="/view-attendance">View Attendance</Link>
-                        <Link to="/record-injuries">Record Injuries</Link>
+                        <Link to="/view-club-activities">View Club Activities</Link>
+                        <Link to="/record-injuries">Record Injury</Link>
                     </>
                 )}
 

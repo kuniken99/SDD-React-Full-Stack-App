@@ -1,11 +1,11 @@
-.home h2 {
+h2 {
     font-size: 34px;
 }
 
 
 /* Hero Section */
-.hero {
-    background: linear-gradient(to right, #D5C9D7, #6b2567); /* Blue gradient */
+.homeArtist .hero {
+    background-color: #D7C9D2;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -15,29 +15,29 @@
     width: 100%;
 }
 
-.hero .section-content {
+.homeArtist .hero .section-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
 }
 
-.hero-content {
+.homeArtist .hero-content {
     max-width: 50%;
 }
 
-.hero h1 {
+.homeArtist .hero h1 {
     font-size: 36px;
     color: black;
 }
 
-.hero p {
+.homeArtist .attendance {
     font-size: 20px;
     opacity: 0.6;
     margin-right: 30px;
 }
 
-.hero-image {
+.homeArtist .hero-image {
     max-width: 600px;
     margin-left: auto;  /* Pushes the image to the right */
     margin-right: 0;     /* Ensures it sticks to the right edge */
@@ -46,7 +46,7 @@
 
 
 /* Scroll Down Arrow */
-.scroll-down {
+.homeArtist .scroll-down {
     position: absolute;
     bottom: 30px;  /* Adjust distance from the bottom */
     left: 50%;
@@ -57,9 +57,9 @@
     cursor: pointer;
 }
 
-.down-arrow {
+.homeArtist .down-arrow {
     font-size: 32px;
-    color: white;
+    color: black;
     animation: bounce 1.5s 10;
 }
 
@@ -69,18 +69,18 @@
 }
 
 /* How It Works Section */
-.how-it-works {
+.homeArtist .how-it-works {
     background-color: #EEF1E7;
     padding: 50px 20px;
     text-align: center;
 }
 
-.section-content h2 {
+.homeArtist .section-content h2 {
     font-weight: bold;
     color: #273044;
 }
 
-.section-subtext {
+.homeArtist .section-subtext {
     font-size: 20px;
     color: #666;
     margin: 20px 250px 50px 250px;
@@ -88,36 +88,113 @@
 }
 
 /* Steps Container */
-.steps-container {
+.homeArtist .steps-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 150px;
     position: relative;
 }
 
-.step {
-    width: 250px;
+.homeArtist .step {
+    width: 300px;
     text-align: center;
 }
 
-.step-icon {
-    width: 60px;
-    height: 60px;
-    background-color: #D7D9D3;
+.homeArtist .step-icon {
+    width: 250px;
+    height: 250px;
+    background-color: #D9D9D9;
     border-radius: 20px;
     margin: 0 auto;
     padding: 15px;
 }
 
-.step h3 {
+.homeArtist .step h3 {
     font-size: 20px;
     font-weight: bold;
     color: #273044;
 }
 
-.step p {
+.homeArtist .step p {
     font-size: 18px;
     color: #555;
     line-height: 1.5;
+}
+
+/* Hero Buttons */
+.homeArtist .hero-buttons {
+    margin-top: 30px;
+}
+
+.homeArtist .btn-primary,
+.homeArtist .btn-secondary {
+    display: inline-block;
+    padding: 12px 20px;
+    margin-right: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+.homeArtist .btn-primary {
+    background: #844881;
+    color: white;
+    margin-right: 50px;
+}
+
+.homeArtist .btn-primary:hover {
+    background-color: #6b2567;
+}
+
+.homeArtist .btn-secondary {
+    background: #E74C3C;
+    color: white;
+}
+
+.homeArtist .btn-secondary:hover {
+    background-color: #c73a2f;
+}
+
+.view-more {
+    text-decoration: none;
+    color: blue;
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.view-more:hover {
+    color: #1a0dab;
+    text-decoration: underline;
+}
+
+/* Recent Training Section */
+.recent-training {
+    opacity: 0.8;
+    padding: 40px 0;
+    margin: 0;
+}
+
+.recent-training h3 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #273044;
+}
+
+.training-item {
+    font-size: 18px;
+    color: #555;
+    border-bottom: 1px solid #ddd;
+    list-style: none;
+    margin: 0 auto;
+}
+
+.training-item p {
+    margin: 0;
+    padding: 5px 0;
+}
+
+.training-item:last-child {
+    border-bottom: none;
 }

@@ -1,5 +1,6 @@
-import React from "react";
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import api from "../../api";
 import "../../styles/Artist/HomeArtist.css";
 
 import HomeDance from "../../assets/HomeDance.png";
@@ -8,59 +9,91 @@ import DanceWorkshops from "../../assets/DanceWorkshops.png";
 import InjuryPrevention from "../../assets/InjuryPrevention.png";
 import { FaChevronDown } from "react-icons/fa";
 import { Link as ScrollLink } from "react-scroll";
-import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const HomeArtist = () => {
+    const [artistInfo, setArtistInfo] = useState(null);
     const location = useLocation();
+    const [user, setUser] = useState({ fullName: "" });
+    const [injuries, setInjuries] = useState([]);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
+        const fetchArtistData = async () => {
+          try {
+            const response = await api.get("/api/artist-info/");  // Make GET request to the endpoint
+            console.log(response.data);  // Log response data
+            setArtistInfo(response.data);  // Set the received artist data
+          } catch (err) {
+            setError(err.response?.data || "Failed to fetch artist info");
+            console.error("Error fetching artist info:", err);  // Log any error that occurs
+          }
+        };
+    
+        fetchArtistData();
+
         if (location.hash) {
             setTimeout(() => {
                 const sectionId = location.hash.replace("#", "");
                 document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
-            }, 100); // Small delay ensures section is rendered before scrolling
+            }, 100);
         }
     }, [location]);
 
+    if (!artistInfo) return <p>Loading artist info...</p>;
+
     return (
-        <div className="home">
-            {/* Home Section */}
+        <div className="homeArtist">
             <section className="hero">
                 <div className="section-content">
                     <div className="hero-content">
-                        <h1>WELCOME ARTIST!</h1>
-                        <p>Are you Directors and Coaches? Unleash the capability of keeping records of training and performance data of artists.</p>
+                        <h1>WELCOME, {artistInfo.fullName.toUpperCase()}!</h1>
                         
+                        
+                        <p>Email: {artistInfo.email}</p>
+                        <p>Role: {artistInfo.role}</p>
+                        <p>Date of Birth: {artistInfo.dob}</p>
+                        <p>Guardian Name: {artistInfo.guardian_name || "N/A"}</p>
+                        
+                        
+                        
+                        
+                        <p className="attendance">Attendance Rate: 90% <Link to="/ViewAttendance" className="view-more">View More</Link></p>
+                        <div className="hero-buttons">
+                            <Link to="/ClubActivities" className="btn-primary">View Club Activities</Link>
+                            <Link to="/ManageInjury" className="btn-secondary">+ Report New Injury</Link>
+                        </div>
+
+                        <div class="recent-training">
+                            <h3>Recent Training Sessions</h3>
+                            <div className="training-item">
+                                <p><strong>Session Name:</strong> Hip-Hop Freestyle</p>
+                                <p><strong>Coach:</strong> John Doe</p>
+                                <p><strong>Status:</strong> Present</p>
+                            </div>
+                        </div>
                     </div>
                     <img src={HomeDance} alt="Dancing Performance" className="hero-image" />
                 </div>
-
-                {/* Downward Arrow to Scroll to How It Works */}
                 <ScrollLink to="how-it-works" className="scroll-down">
                     <FaChevronDown className="down-arrow" />
                 </ScrollLink>
             </section>
-            
-            {/* Club Activities Section */}
+
             <section id="how-it-works" className="how-it-works">
                 <div className="section-content">
                     <h2>Club Activities</h2>
                     <p className="section-subtext">The club includes various activities to keep artists engaged and improve their skills.</p>
-
                     <div className="steps-container">
                         <div className="step">
-                            <img src={TeamBuilding} alt="Team-Building" className="step-icon" />
+                            <img src={TeamBuilding} alt="Team-Building" className="step-icon large" />
                             <h3>Team-Building</h3>
                         </div>
-
                         <div className="step">
-                            <img src={DanceWorkshops} alt="Dance & Performance Workshops" className="step-icon" />
+                            <img src={DanceWorkshops} alt="Dance & Performance Workshops" className="step-icon large" />
                             <h3>Dance & Performance Workshops</h3>
                         </div>
-
-
                         <div className="step">
-                            <img src={InjuryPrevention} alt="Injury Prevention Sessions" className="step-icon" />
+                            <img src={InjuryPrevention} alt="Injury Prevention Sessions" className="step-icon large" />
                             <h3>Injury Prevention Sessions</h3>
                         </div>
                     </div>
@@ -68,6 +101,6 @@ const HomeArtist = () => {
             </section>
         </div>
     );
-}
+};
 
 export default HomeArtist;

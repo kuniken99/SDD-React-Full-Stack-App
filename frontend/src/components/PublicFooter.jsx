@@ -69,7 +69,7 @@ function PublicFooter() {
 
             {/* Bottom Section - Copyright & Policies */}
             <div className="footer-bottom">
-                <p>©2025 DanceLah, Inc. All rights reserved.</p>
+                <p>© 2025 DanceLah, Inc. All rights reserved.</p>
                 <div className="footer-policy">
                     <Link to="/PrivacyPolicy">Privacy & Policy</Link>
                     <span>|</span>

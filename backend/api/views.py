@@ -5,7 +5,25 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password
 from .serializers import RegisterSerializer, LoginSerializer, CaptchaSerializer
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import get_user_model
 
+# ---------------------- Get Artist Info (Protected) ----------------------
+class ArtistInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user  # Authenticated user
+        return Response({
+            "fullName": user.full_name,
+            "email": user.email,
+            "role": user.role,
+            "dob": user.dob,
+            "guardian_name": user.guardian_name
+        }, status=status.HTTP_200_OK)
+    
 class RegisterView(APIView):
     def post(self, request):
         print("Request data:", request.data)  # Log incoming request data
@@ -62,6 +80,7 @@ class RegisterView(APIView):
             "message": "User registered successfully.",
             "refresh": str(refresh),
             "access": str(refresh.access_token),
+            "role": user.role,
         }, status=status.HTTP_201_CREATED)
 
 class LoginView(APIView):
@@ -84,6 +103,7 @@ class LoginView(APIView):
             # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
             return Response({
+                "message": "Login successful.",
                 "access": str(refresh.access_token),
                 "refresh": str(refresh),
                 "role": user.role,  # Send role along with the tokens
