@@ -2,6 +2,10 @@ html {
     scroll-behavior: smooth;
 }
 
+.logo-image {
+    margin-left: 10px;
+}
+
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -9,10 +13,19 @@ html {
     background-color: #D5C9D7;
     padding: 5px 30px;
     font-size: 18px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .navbar-logo img {
     height: 56px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.navbar-logo img:hover {
+    transform: scale(1.05);
 }
 
 .navbar-links {
@@ -24,31 +37,114 @@ html {
     text-decoration: none;
 }
 
+.navbar-links a {
+    text-decoration: none;
+    color: #844881;
+    transition: color 0.3s ease;
+}
+
+.navbar-links a:hover {
+    color: #6b2567;
+}
+
 .navbar-links a:first-child {
     font-weight:bold;
-    text-decoration: none;
     color: black;
 }
-/* Default button styling */
-.navbar-buttons a {
-    text-decoration: none;
-    margin: 0 5px;
-    padding: 0.5rem 10px;
-    border-radius: 5px;
-}
-
-/* signup button (darker color with white text) */
-.navbar-buttons a.signup {
-    background-color: #844881;  /* Dark blue/gray color for Login */
-    color: white;  /* White text */
-}
-
-.navbar-buttons a.signup:hover {
-    background-color: #6b2567;  /* Slightly darker blue on hover */
-}
-
-
 
 .separator {
     margin-right: 20px;
+}
+
+.navbar-buttons {
+    display: flex;
+    justify-content: center; /* Centers items horizontally */
+    align-items: center;    /* Centers items vertically */
+    height: 100%;           /* Adjust as necessary */
+}
+
+.navbar-buttons .login,
+.navbar-buttons .signup,
+.navbar-buttons .profile-icon,
+.navbar-buttons .logout {
+    margin: 0 5px;          /* Add some spacing between the elements */
+}
+
+/* Default button styling */
+.navbar-buttons a,
+.navbar-buttons button {
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+    border: none;
+    cursor: pointer;
+}
+
+/* Login button */
+.navbar-buttons a.login {
+    background-color: transparent;
+    color: #844881;
+    border: 1.5px solid #844881;
+    padding: 6px 13px;
+}
+
+.navbar-buttons a.login:hover {
+    background-color: #844881;
+    color: white;
+}
+
+/* Signup button */
+.navbar-buttons a.signup {
+    background-color: #844881;
+    color: white;
+}
+
+.navbar-buttons a.signup:hover {
+    background-color: #6b2567;
+}
+
+/* Logout button */
+.navbar-buttons button.logout {
+    background-color: #844881;
+    color: white;
+}
+
+.navbar-buttons button.logout:hover {
+    background-color: #6b2567;
+}
+
+/* Profile Icon */
+.navbar-buttons .profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #844881;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.navbar-buttons .profile-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        padding: 10px 15px;
+    }
+
+    .navbar-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .navbar-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
 }

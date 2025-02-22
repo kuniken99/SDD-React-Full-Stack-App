@@ -48,40 +48,42 @@ const Home = () => {
             
             {/* How It Works Section */}
             <section id="how-it-works" className="how-it-works">
-            <div className="section-content">
-                <h2>How It Works?</h2>
-                <p className="section-subtext">See the advantages of an efficient, secure, and insightful web application.</p>
+                <div className="section-content">
+                    <h2>How It Works?</h2>
+                    <p className="section-subtext">See the advantages of an efficient, secure, and insightful web application.</p>
 
-                <div className="steps-container">
-                    <div className="step">
-                        <img src={HowItWorksIcon1} alt="Choose Number of Artists" className="step-icon" />
-                        <h3>Choose Number of Artists</h3>
-                        <p>Create an account as a Director, Coach, or Artist.</p>
+                    <div className="steps-container">
+                        <div className="step">
+                            <img src={HowItWorksIcon1} alt="Choose Number of Artists" className="step-icon" />
+                            <h3>Choose Number of Artists</h3>
+                            <p>Create an account as a Director, Coach, or Artist.</p>
+                        </div>
+
+                        <img src={HowItWorksLine} alt="Connector Line" className="step-line" />
+
+                        <div className="step">
+                            <img src={HowItWorksIcon2} alt="Input Performance Data" className="step-icon" />
+                            <h3>Input Performance Data</h3>
+                            <p>Manage your records. Add performance stats, update attendance, and track injuries.</p>
+                        </div>
+
+                        <img src={HowItWorksLine} alt="Connector Line" className="step-line" />
+
+                        <div className="step">
+                            <img src={HowItWorksIcon3} alt="View Artist Insights" className="step-icon" />
+                            <h3>View Artist Insights</h3>
+                            <p>Analyze your reports. Based on the insights, schedule training and organize events.</p>
+                        </div>
                     </div>
 
-                    <img src={HowItWorksLine} alt="Connector Line" className="step-line" />
-
-                    <div className="step">
-                        <img src={HowItWorksIcon2} alt="Input Performance Data" className="step-icon" />
-                        <h3>Input Performance Data</h3>
-                        <p>Manage your records. Add performance stats, update attendance, and track injuries.</p>
-                    </div>
-
-                    <img src={HowItWorksLine} alt="Connector Line" className="step-line" />
-
-                    <div className="step">
-                        <img src={HowItWorksIcon3} alt="View Artist Insights" className="step-icon" />
-                        <h3>View Artist Insights</h3>
-                        <p>Analyze your reports. Based on the insights, schedule training and organize events.</p>
-                    </div>
+                    <Link to="/register" className="cta-button">Try Now</Link>
                 </div>
-
-                <Link to="/register" className="cta-button">Try Now</Link>
-            </div>
-        </section>
+            </section>
 
             {/* Why Choose Us Section */}
             <section id="why-choose-us" className="why-choose-us">
+            <div className="section-content">
+
             <div className="container">
                 <h2>Why Choose Us?</h2>
                 <p className="section-subtext">Keep track of your journey with seamless data management and real-time updates. Say goodbye to paperwork and hello to efficiency.</p>
@@ -117,6 +119,7 @@ const Home = () => {
                             </div>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
                 <Link to="/register" className="cta-button">Try Now</Link>

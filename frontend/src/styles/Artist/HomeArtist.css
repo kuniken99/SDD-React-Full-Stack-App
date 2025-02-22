@@ -1,0 +1,123 @@
+.home h2 {
+    font-size: 34px;
+}
+
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(to right, #D5C9D7, #6b2567); /* Blue gradient */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    text-align: left;
+    padding: 50px 0;
+    width: 100%;
+}
+
+.hero .section-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.hero-content {
+    max-width: 50%;
+}
+
+.hero h1 {
+    font-size: 36px;
+    color: black;
+}
+
+.hero p {
+    font-size: 20px;
+    opacity: 0.6;
+    margin-right: 30px;
+}
+
+.hero-image {
+    max-width: 600px;
+    margin-left: auto;  /* Pushes the image to the right */
+    margin-right: 0;     /* Ensures it sticks to the right edge */
+    border-radius: 30px;
+}
+
+
+/* Scroll Down Arrow */
+.scroll-down {
+    position: absolute;
+    bottom: 30px;  /* Adjust distance from the bottom */
+    left: 50%;
+    transform: translateX(-50%); /* True centering */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.down-arrow {
+    font-size: 32px;
+    color: white;
+    animation: bounce 1.5s 10;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+}
+
+/* How It Works Section */
+.how-it-works {
+    background-color: #EEF1E7;
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.section-content h2 {
+    font-weight: bold;
+    color: #273044;
+}
+
+.section-subtext {
+    font-size: 20px;
+    color: #666;
+    margin: 20px 250px 50px 250px;
+    margin-bottom: 50px;
+}
+
+/* Steps Container */
+.steps-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+}
+
+.step {
+    width: 250px;
+    text-align: center;
+}
+
+.step-icon {
+    width: 60px;
+    height: 60px;
+    background-color: #D7D9D3;
+    border-radius: 20px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+.step h3 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #273044;
+}
+
+.step p {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.5;
+}
