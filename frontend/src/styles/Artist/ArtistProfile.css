@@ -1,196 +1,157 @@
-/* Profile Page Container */
-.profile-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px;
-    font-family: "Arial", sans-serif;
-    background-color: #f9f9f9;
-    min-height: 100vh;
-  }
-  
-  /* Profile Card */
-  .profile-card {
-    width: 100%;
-    max-width: 500px;
-    padding: 25px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  /* Profile Fields Layout */
-  .profile-field {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 15px;
-  }
-  
-  /* Labels */
-  .profile-field label {
-    font-weight: bold;
-    flex: 1;
-    color: #333;
-  }
-  
-  /* Input Fields */
-  .profile-field input {
-    flex: 2;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 14px;
-    background-color: #f5f5f5;
-    color: #444;
-    outline: none;
-  }
-  
-  /* Readonly Inputs */
-  .profile-field input[readonly] {
-    background-color: #e9ecef;
-    cursor: not-allowed;
-  }
-  
-  /* Change Buttons */
-  .change-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s;
-    font-size: 14px;
-    margin-left: 10px;
-  }
-  
-  .change-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Support Message */
-  .support-message {
-    font-size: 14px;
-    color: #666;
-    margin-top: 20px;
-    text-align: center;
-    font-style: italic;
-  }
-  
-  .support-message a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .support-message a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 600px) {
-    .profile-card {
-      max-width: 90%;
-    }
-  
-    .profile-field {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  
-    .profile-field input {
-      width: 100%;
-      margin-top: 5px;
-    }
-  
-    .change-btn {
-      width: 100%;
-      margin-top: 5px;
-    }
-  }
-  
-  /* Modal Styles */
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    font-family: "Arial", sans-serif;
-  }
-  
-  .modal-content h2 {
-    margin-bottom: 20px;
-    color: #333;
-    font-size: 18px;
-  }
-  
-  input[type="text"],
-  input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 14px;
-    margin-bottom: 15px;
-    background-color: #f5f5f5;
-    color: #444;
-  }
-  
-  input[type="text"]:focus,
-  input[type="password"]:focus {
-    outline: none;
-    border-color: #007bff;
-  }
-  
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
-  
-  .change-btn, .cancel-btn {
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  
-  .change-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-  }
-  
-  .change-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  .cancel-btn {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-  }
-  
-  .cancel-btn:hover {
-    background-color: #c82333;
-  }
-  
-  .cancel-btn:focus {
-    outline: none;
-  }
-  
+.artist-profile-container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 800px;
+  margin: auto;
+  background: #f8f8f8;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.artist-profile-container h2 {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+/* Left Side - Profile Picture */
+.profile-left {
+  width: 40%;
+  text-align: center;
+}
+
+.profile-pic-wrapper {
+  position: relative;
+  width: 120px;
+  margin: auto;
+}
+
+.profile-pic {
+  width: 100%;
+  border-radius: 50%;
+  margin-top: 100px;
+  border: 3px solid #ccc;
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 24px;
+  cursor: pointer;
+}
+
+.artist-name {
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.user-type {
+  font-size: 18px;
+  color: gray;
+}
+
+/* Right Side - Profile Details */
+.profile-right {
+  width: 55%;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  padding: 10px;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+input {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  color: #555;
+}
+
+button.change-btn {
+  background: #844881;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button.change-btn:hover {
+  background: #6b2567;
+}
+
+/* Support Message */
+.support-message {
+  font-size: 16px;
+  color: gray;
+  margin-top: 10px;
+}
+
+.support-message a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.support-message a:hover {
+  text-decoration: underline;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-input {
+  border: 1px solid #ccc;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+button.cancel-btn {
+  background: #ccc;
+  color: black;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button.cancel-btn:hover {
+  background: #999;
+}

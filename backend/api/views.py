@@ -25,6 +25,97 @@ from .serializers import (
     InjurySerializer,
     ClubActivitySerializer,
 )
+from django.core.mail import send_mail
+from django.conf import settings
+import random
+import time
+
+otp_storage = {}
+
+class RequestEmailChangeOtpAPIView(APIView):
+    def post(self, request):
+        user = request.user
+        # Generate a 6-digit OTP using random.randint
+        otp = random.randint(100000, 999999)
+
+        # Store OTP and user ID in the in-memory dictionary (otp_storage)
+        otp_storage[user.id] = otp
+
+        # Send OTP to email
+        subject = "OTP for Email Change"
+        message = f"Your OTP for email change is {otp}"
+        recipient_list = [user.email]
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
+
+        return Response({"message": "OTP sent successfully."}, status=status.HTTP_200_OK)
+
+
+class VerifyOtpAndChangeEmailAPIView(APIView):
+    def put(self, request):
+        user = request.user
+        otp_input = request.data.get('otp')
+        new_email = request.data.get('email')
+
+        # Check if the OTP exists for the user
+        otp_sent = otp_storage.get(user.id)
+
+        if not otp_sent:
+            return Response({"error": "OTP not found or expired."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if otp_sent != int(otp_input):  # Ensure OTP is compared as integers
+            return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user.email = new_email
+            user.save()
+
+            # Clear OTP after successful email change
+            del otp_storage[user.id]
+
+            return Response({"message": "Email updated successfully."}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+class RequestPasswordChangeOTPView(APIView):
+    def post(self, request):
+        user = request.user  # Assumes the user is authenticated
+        otp = random.randint(100000, 999999)  # Generate a 6-digit OTP
+        otp_storage[user.email] = {"otp": otp, "timestamp": time.time()}
+        
+        # Send OTP to user's email
+        send_mail(
+            'OTP for Password Change',
+            f'Your OTP for Password change is {otp}',
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+
+        return Response({"message": "OTP sent to your email."}, status=status.HTTP_200_OK)
+
+class VerifyOTPAndChangePasswordView(APIView):
+    def put(self, request):
+        user = request.user  # Assumes the user is authenticated
+        otp = request.data.get('otp')
+        new_password = request.data.get('password')
+        
+        # Check if OTP is valid and not expired
+        if user.email in otp_storage:
+            stored_otp_data = otp_storage[user.email]
+            if time.time() - stored_otp_data["timestamp"] < 300:  # OTP is valid for 5 minutes
+                if int(otp) == stored_otp_data["otp"]:
+                    user.set_password(new_password)
+                    user.save()
+                    del otp_storage[user.email]  # Delete OTP after successful use
+                    return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
+                else:
+                    return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                del otp_storage[user.email]  # Delete expired OTP
+                return Response({"error": "OTP expired."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"error": "OTP not found."}, status=status.HTTP_400_BAD_REQUEST)
+    
 
 # ---------------------- Get Artist Info (Protected) ----------------------
 class ArtistInfoView(APIView):
@@ -45,6 +136,7 @@ class ArtistInfoView(APIView):
                 "dob": user.dob,
                 "guardian_name": user.guardian_name,
                 "attendance_rate": artist_profile.attendance_rate,
+                "coach_name": user.coach_name,
                 "total_sessions": artist_profile.total_sessions,
                 "total_training_hours": artist_profile.total_training_hours,
                 "total_performance_hours": artist_profile.total_performance_hours,
@@ -199,6 +291,44 @@ class ArtistClubActivitiesView(APIView):
         except Artist.DoesNotExist:
             return Response({"detail": "Artist profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
+class UpdateFullNameView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user  # assuming you're using the logged-in user
+        new_full_name = request.data.get('full_name')
+
+        if new_full_name:
+            user.full_name = new_full_name
+            user.save()
+            return Response({"message": "Full name updated successfully."}, status=status.HTTP_200_OK)
+        return Response({"error": "Full name is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+class UpdateEmailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        new_email = request.data.get('email')
+
+        if new_email:
+            user.email = new_email
+            user.save()
+            return Response({"message": "Email updated successfully."}, status=status.HTTP_200_OK)
+        return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+class UpdatePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        new_password = request.data.get('password')
+
+        if new_password:
+            user.set_password(new_password)
+            user.save()
+            return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
+        return Response({"error": "Password is required."}, status=status.HTTP_400_BAD_REQUEST)
 
 # ---------------------- Get All Injuries (For Coach and Director) ----------------------
 class AllInjuriesView(APIView):

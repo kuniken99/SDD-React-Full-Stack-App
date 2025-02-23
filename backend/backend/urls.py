@@ -8,6 +8,14 @@ from api.views import (
     ArtistTrainingSessionsView,
     ArtistInjuriesView,
     ArtistClubActivitiesView,
+    UpdateFullNameView,
+    UpdateEmailView,
+    UpdatePasswordView,
+    RequestPasswordChangeOTPView,
+    VerifyOTPAndChangePasswordView,
+    RequestEmailChangeOtpAPIView,
+    VerifyOtpAndChangeEmailAPIView,
+
     AllInjuriesView,
     AddInjuryView,
     AddTrainingSessionView,
@@ -23,13 +31,21 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="refresh"),  # Token refresh
     path("api-auth/", include("rest_framework.urls")),
     path("api/", include("api.urls")),  # Include user routes for registration and login
-    
+
     # ---------------------- Artist Views ----------------------
     path('api/artist-info/', ArtistInfoView.as_view(), name='artist-info'),
     path('api/artist/training-sessions/', ArtistTrainingSessionsView.as_view(), name='artist-training-sessions'),
     path('api/artist/injuries/', ArtistInjuriesView.as_view(), name='artist-injuries'),
     path('api/artist/club-activities/', ArtistClubActivitiesView.as_view(), name='artist-club-activities'),
-
+    path('api/update-full-name/', UpdateFullNameView.as_view(), name='update_full_name'),
+    path('api/update-email/', UpdateEmailView.as_view(), name='update_email'),
+    
+    path('api/update-password/', UpdatePasswordView.as_view(), name='update_password'),
+    path('api/request-password-change-otp/', RequestPasswordChangeOTPView.as_view(), name='request_password_change_otp'),
+    path('api/verify-otp-and-change-password/', VerifyOTPAndChangePasswordView.as_view(), name='verify_otp_and_change_password'),
+    path('api/request-email-change-otp/', RequestEmailChangeOtpAPIView.as_view(), name='request_email_change_otp'),
+    path('api/verify-otp-and-change-email/', VerifyOtpAndChangeEmailAPIView.as_view(), name='verify_otp_and_change_email'),
+    
     # ---------------------- Coach/Director Views ----------------------
     path('api/coach/director/injuries/', AllInjuriesView.as_view(), name='all-injuries'),  # Only for coach and director
     path('api/coach/add-injury/', AddInjuryView.as_view(), name='add-injury'),  # Only for coach

@@ -13,7 +13,7 @@ class User(AbstractUser):
     full_name = models.CharField(max_length=255)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='artist')
     dob = models.DateField()
-    guardian_name = models.CharField(max_length=255, blank=True, null=True)
+    guardian_name = models.CharField(max_length=255, blank=True, null=True, default="N/A")
     coach_name = models.CharField(max_length=255, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
