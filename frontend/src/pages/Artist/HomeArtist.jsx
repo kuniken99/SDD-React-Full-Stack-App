@@ -63,7 +63,7 @@ const HomeArtist = () => {
                             <Link to="/ManageInjury" className="btn-secondary">+ Report New Injury</Link>
                         </div>
 
-                        <div class="recent-training">
+                        <div className="recent-training">
                             <h3>Recent Training Sessions</h3>
                             <div className="training-item">
                                 <p><strong>Session Name:</strong> Hip-Hop Freestyle</p>

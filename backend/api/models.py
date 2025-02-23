@@ -15,6 +15,7 @@ class User(AbstractUser):
     dob = models.DateField()
     guardian_name = models.CharField(max_length=255, blank=True, null=True, default="N/A")
     coach_name = models.CharField(max_length=255, null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name', 'role', 'dob']

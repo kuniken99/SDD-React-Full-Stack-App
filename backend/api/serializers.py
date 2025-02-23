@@ -9,7 +9,7 @@ from .models import User, Artist, Coach, Director, TrainingSession, TrainingAtte
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'full_name', 'email', 'role', 'dob', 'coach_name', 'guardian_name']
+        fields = ['id', 'full_name', 'email', 'role', 'dob', 'coach_name', 'guardian_name', 'profile_picture']
 
 # ---------------------- Register Serializer ----------------------
 class RegisterSerializer(serializers.ModelSerializer):
@@ -17,7 +17,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'password', 'confirmPassword', 'role', 'dob', 'coach_name', 'guardian_name']
+        fields = ['full_name', 'email', 'password', 'confirmPassword', 'role', 'dob', 'coach_name', 'guardian_name', 'profile_picture']
 
     def validate(self, data):
         # Check if passwords match
@@ -41,6 +41,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             role=validated_data['role'],
             dob=validated_data['dob'],
             coach_name=validated_data.get('coach_name', None),
+            profile_picture=validated_data.get('profile_picture', None),
             guardian_name=validated_data.get('guardian_name', None)
         )
 

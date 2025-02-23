@@ -2,7 +2,7 @@ import axios from "axios";
 import { ACCESS_TOKEN } from "./constants";
 
 // Define the default API path if VITE_API_URL is not set in the environment
-const apiUrl = "/choreo-apis/sdddjangoreact/backend/v1";  // Modify to your actual path if needed
+const apiUrl = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"; 
 
 // Create an axios instance with the base URL
 const api = axios.create({

@@ -135,6 +135,7 @@ class ArtistInfoView(APIView):
                 "role": user.role,
                 "dob": user.dob,
                 "guardian_name": user.guardian_name,
+                "profile_picture": user.profile_picture.url if user.profile_picture else None,
                 "attendance_rate": artist_profile.attendance_rate,
                 "coach_name": user.coach_name,
                 "total_sessions": artist_profile.total_sessions,

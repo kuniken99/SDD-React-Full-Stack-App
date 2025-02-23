@@ -53,7 +53,7 @@ function ArtistProfile() {
     }
     
     setEditingField(field);
-    setUpdatedValue(profile[field]);
+    setUpdatedValue(profile ? profile[field] || "" : "");
   };
 
   const handleInputChange = (e) => {
@@ -143,9 +143,11 @@ function ArtistProfile() {
   if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div class="artist-profile">
+    <div className="artist-profile">
 
       <h1>Profile</h1>
+    
+    {/* Profile Pic */}
     <div className="artist-profile-container">
       <div className="profile-left">
         <div className="profile-pic-wrapper" onClick={() => handleChangeClick("profile_picture")}>
@@ -156,6 +158,7 @@ function ArtistProfile() {
         <p className="user-type">Artist</p>
       </div>
 
+      {/* Profile Details */}
       <div className="profile-right">
         <div className="profile-field">
           <label>Full Name:</label>
