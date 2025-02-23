@@ -1,12 +1,13 @@
+.artist-profile {
+  text-align: center;
+  background: #D7C9D2;
+  padding: 20px;
+}
+
 .artist-profile-container {
   display: flex;
   justify-content: space-between;
-  max-width: 800px;
-  margin: auto;
-  background: #f8f8f8;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .artist-profile-container h2 {
@@ -16,20 +17,24 @@
 
 /* Left Side - Profile Picture */
 .profile-left {
-  width: 40%;
   text-align: center;
+  margin-left: 100px;
+  margin-bottom: 200px;
+  padding: 0 100px;
+  background-color: #D7CBC9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .profile-pic-wrapper {
   position: relative;
-  width: 120px;
-  margin: auto;
+  width: 130px;
 }
 
 .profile-pic {
   width: 100%;
   border-radius: 50%;
-  margin-top: 100px;
+  margin-top: 50px;
   border: 3px solid #ccc;
 }
 
@@ -47,6 +52,26 @@
   margin-top: 10px;
 }
 
+.profile-field label {
+  flex: 1;
+  text-align: left;
+  margin-left: 20px;
+}
+
+.profile-field input {
+  flex: 2;
+  text-align: left;
+}
+
+.profile-field input {
+  flex: 2;
+  text-align: left;
+}
+
+.profile-field.no-change-btn input {
+  padding-right: 80px; /* Adjust the value based on the width of the change button */
+}
+
 .user-type {
   font-size: 18px;
   color: gray;
@@ -54,7 +79,13 @@
 
 /* Right Side - Profile Details */
 .profile-right {
-  width: 55%;
+  background-color: #D7CBC9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px 40px;
+  margin-right: 100px;
+  margin-left: 100px;
+  width: 60%;
   display: flex;
   flex-direction: column;
 }

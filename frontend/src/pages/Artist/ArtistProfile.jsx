@@ -143,6 +143,9 @@ function ArtistProfile() {
   if (error) return <p className="error-message">{error}</p>;
 
   return (
+    <div class="artist-profile">
+
+      <h1>Profile</h1>
     <div className="artist-profile-container">
       <div className="profile-left">
         <div className="profile-pic-wrapper" onClick={() => handleChangeClick("profile_picture")}>
@@ -172,17 +175,17 @@ function ArtistProfile() {
           <button className="change-btn" onClick={() => handleChangeClick("password")}>Change</button>
         </div>
 
-        <div className="profile-field">
+        <div className="profile-field no-change-btn">
           <label>Coach Name:</label>
           <input type="text" value={profile.coach_name} readOnly />
         </div>
 
-        <div className="profile-field">
+        <div className="profile-field no-change-btn">
           <label>Date of Birth:</label>
           <input type="text" value={profile.dob} readOnly />
         </div>
 
-        <div className="profile-field">
+        <div className="profile-field no-change-btn">
           <label>Guardian Name:</label>
           <input type="text" value={profile?.guardian_name} readOnly />
         </div>
@@ -201,7 +204,7 @@ function ArtistProfile() {
       {editingField === "full_name" && (
         <div className="modal" ref={modalRef}>
           <div className="modal-content">
-            <h2>Edit {editingField.replace("_", " ").toUpperCase()}</h2>
+            <h2>Edit Full Name</h2>
             <form onSubmit={handleFormSubmit}>
               <input
                 type={editingField === "password" ? "password" : "text"}
@@ -317,6 +320,8 @@ function ArtistProfile() {
       )}
 
     </div>
+    </div>
+
   );
 }
 
