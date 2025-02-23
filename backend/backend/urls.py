@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from api.views import (
     RegisterView,
@@ -15,7 +17,8 @@ from api.views import (
     VerifyOTPAndChangePasswordView,
     RequestEmailChangeOtpAPIView,
     VerifyOtpAndChangeEmailAPIView,
-
+    ProfilePictureUpdateView,
+    
     AllInjuriesView,
     AddInjuryView,
     AddTrainingSessionView,
@@ -45,6 +48,7 @@ urlpatterns = [
     path('api/verify-otp-and-change-password/', VerifyOTPAndChangePasswordView.as_view(), name='verify_otp_and_change_password'),
     path('api/request-email-change-otp/', RequestEmailChangeOtpAPIView.as_view(), name='request_email_change_otp'),
     path('api/verify-otp-and-change-email/', VerifyOtpAndChangeEmailAPIView.as_view(), name='verify_otp_and_change_email'),
+    path('update-profile-picture/', ProfilePictureUpdateView.as_view(), name='update-profile-picture'),
     
     # ---------------------- Coach/Director Views ----------------------
     path('api/coach/director/injuries/', AllInjuriesView.as_view(), name='all-injuries'),  # Only for coach and director
@@ -53,3 +57,6 @@ urlpatterns = [
     path('api/coach/mark-attendance/', MarkAttendanceView.as_view(), name='mark-attendance'),  # Only for coach
     path('api/coach/director/create-club-activity/', CreateClubActivityView.as_view(), name='create-club-activity'),  # Coach and Director
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

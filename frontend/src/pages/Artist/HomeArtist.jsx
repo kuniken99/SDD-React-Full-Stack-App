@@ -49,13 +49,6 @@ const HomeArtist = () => {
                         <h1>WELCOME, {artistInfo.full_name.toUpperCase()}!</h1>
                         
                         
-                        <p>Email: {artistInfo.email}</p>
-                        <p>Role: {artistInfo.role}</p>
-                        <p>Date of Birth: {artistInfo.dob}</p>
-                        <p>Guardian Name: {artistInfo.guardian_name || "N/A"}</p>
-                        
-                        
-                        
                         
                         <p className="attendance">Attendance Rate: {artistInfo.attendance_rate}% <Link to="/ViewAttendance" className="view-more">View More</Link></p>
                         <div className="hero-buttons">

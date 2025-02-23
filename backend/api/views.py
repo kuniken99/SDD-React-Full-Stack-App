@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets, permissions
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import User, Artist, Coach, Director, TrainingSession, TrainingAttendance, Injury, ClubActivity
 from .serializers import (
     RegisterSerializer,
@@ -454,3 +455,16 @@ class DirectorDashboardView(APIView):
             'top_artists': [{'name': artist.full_name, 'attendance': artist.session_count} for artist in top_artists],
             'session_types': session_types
         })
+
+class ProfilePictureUpdateView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        file = request.FILES.get('profile_picture')
+        if file:
+            user.profile_picture = file
+            user.save()
+            return Response({"message": "Profile picture updated successfully."}, status=200)
+        return Response({"error": "No file uploaded"}, status=400)

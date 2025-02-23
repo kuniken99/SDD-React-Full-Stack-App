@@ -3,19 +3,36 @@ import { Link as ScrollLink } from "react-scroll";
 import { useEffect, useState } from "react";
 import "../styles/Navbar.css";
 import DanceLahLogo from "../assets/DanceLahLogo.png";
-import ProfilePic from "../assets/ProfilePic.png";
+import ProfilePicPlaceholder from "../assets/ProfilePic.png";
+import api from "../api";
 
 function Navbar() {
     const location = useLocation();
     const navigate = useNavigate();
     const [role, setRole] = useState(null);
+    const [profilePic, setProfilePic] = useState(ProfilePicPlaceholder);
 
     // Get role from localStorage on mount
     useEffect(() => {
         const storedRole = localStorage.getItem("role");
         console.log("Stored role:", storedRole); // Debugging
         setRole(storedRole);
+
+        // Fetch profile picture if user is logged in
+        if (storedRole) {
+            fetchProfilePic();
+        }
     }, []);
+
+    const fetchProfilePic = async () => {
+        try {
+            const response = await api.get("/api/artist-info/");
+            const profilePicUrl = response.data.profile_picture ? `${api.defaults.baseURL}${response.data.profile_picture}` : ProfilePicPlaceholder;
+            setProfilePic(profilePicUrl);
+        } catch (error) {
+            console.error("Failed to fetch profile picture:", error);
+        }
+    };
 
     // Logout function
     const handleLogout = () => {
@@ -35,18 +52,32 @@ function Navbar() {
         }
     };
 
+     // Determine the home page based on the user's role
+     const getHomePage = () => {
+        switch (role) {
+            case "artist":
+                return "/HomeArtist";
+            case "coach":
+                return "/HomeCoach";
+            case "director":
+                return "/HomeDirector";
+            default:
+                return "/";
+        }
+    };
+
     return (
         <nav className="navbar">
             {/* Logo */}
             <div className="navbar-logo">
-                <Link to="/">
+                <Link to={getHomePage()}>
                     <img src={DanceLahLogo} alt="DanceLah Logo" className="logo-image" />
                 </Link>
             </div>
 
             {/* Navbar Links Based on Role */}
             <div className="navbar-links">
-                <Link to="/" onClick={scrollToTop}>Home</Link>
+                <Link to={getHomePage()} onClick={scrollToTop}>Home</Link>
 
                 {/* Unregistered User Links */}
                 {!role && (
@@ -99,7 +130,7 @@ function Navbar() {
                     <>
                         {/* Profile Icon (Placeholder) */}
                         <Link to="/profile">
-                            <img src={ProfilePic} alt="Profile" className="profile-icon" />
+                            <img src={profilePic} alt="Profile" className="profile-icon" />
                         </Link>
                         {/* Logout Button */}
                         <button onClick={handleLogout} className="logout">Log Out</button>

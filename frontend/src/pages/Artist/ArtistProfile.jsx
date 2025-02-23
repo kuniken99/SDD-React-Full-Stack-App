@@ -15,6 +15,11 @@ function ArtistProfile() {
   const [otpSent, setOtpSent] = useState(false); // Track if OTP is sent
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false); // Track if password is updated
   const [emailChangeSuccess, setEmailChangeSuccess] = useState(false); // Track if email change was successful
+  
+  const [selectedFile, setSelectedFile] = useState(null); // State to store selected file
+  const [preview, setPreview] = useState(null); // State to store preview URL
+  const fileInputRef = useRef(null);
+
   const modalRef = useRef(null);
 
   async function fetchProfile() {
@@ -67,6 +72,43 @@ function ArtistProfile() {
   const handleOtpChange = (e) => {
     setOtp(e.target.value);
   };
+
+
+  // Profile Picture
+  const handleProfilePicClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setPreview(previewUrl);
+      uploadProfilePicture(file);
+    }
+  };
+
+  const uploadProfilePicture = async (file) => {
+    const formData = new FormData();
+    formData.append("profile_picture", file);
+
+    try {
+      await api.post("/api/update-profile-picture/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      // Re-fetch profile data after upload
+      const response = await api.get("/api/artist-info/");
+      setProfile(response.data);
+      setPreview(null);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      setError("Failed to update profile picture.");
+    }
+  };
+
+
+
 
   // Request OTP to user's email
   const handleRequestOtp = async () => {
@@ -144,16 +186,23 @@ function ArtistProfile() {
 
   return (
     <div className="artist-profile">
-
       <h1>Profile</h1>
     
     {/* Profile Pic */}
     <div className="artist-profile-container">
       <div className="profile-left">
-        <div className="profile-pic-wrapper" onClick={() => handleChangeClick("profile_picture")}>
-          <img src={profile.profile_picture || profilePlaceholder} alt="Profile" className="profile-pic" />
+        <div className="profile-pic-wrapper" onClick={handleProfilePicClick}>
+          <img src={preview || (profile.profile_picture && `${api.defaults.baseURL}${profile.profile_picture}`) || profilePlaceholder} alt="Profile" className="profile-pic" />
           <img src={pencilIcon} alt="Edit" className="edit-icon" />
         </div>
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          accept="image/*" 
+          style={{ display: "none" }} 
+          onChange={handleFileChange} 
+        />
+
         <h2 className="artist-name">{profile.full_name}</h2>
         <p className="user-type">Artist</p>
       </div>

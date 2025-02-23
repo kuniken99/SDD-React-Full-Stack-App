@@ -29,6 +29,18 @@ api.interceptors.request.use(
   }
 );
 
+export const uploadProfilePicture = (file) => {
+  const formData = new FormData();
+  formData.append("profile_picture", file);
+
+  return api.post("/api/update-profile-picture/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+
 // Fetch artist information
 export const getArtistInfo = () => {
   return api.get('/api/artist/info/')
