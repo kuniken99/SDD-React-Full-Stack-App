@@ -7,6 +7,7 @@ from api.views import (
     RegisterView,
     LoginView,
     ArtistInfoView,
+    UserInfoView,
     ArtistTrainingSessionsView,
     ArtistInjuriesView,
     ArtistClubActivitiesView,
@@ -18,7 +19,7 @@ from api.views import (
     RequestEmailChangeOtpAPIView,
     VerifyOtpAndChangeEmailAPIView,
     ProfilePictureUpdateView,
-    
+    DirectorDashboardView,
     AllInjuriesView,
     AddInjuryView,
     AddTrainingSessionView,
@@ -34,6 +35,7 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="refresh"),  # Token refresh
     path("api-auth/", include("rest_framework.urls")),
     path("api/", include("api.urls")),  # Include user routes for registration and login
+    path('api/user-info/', UserInfoView.as_view(), name='user-info'), 
 
     # ---------------------- Artist Views ----------------------
     path('api/artist-info/', ArtistInfoView.as_view(), name='artist-info'),
@@ -56,6 +58,9 @@ urlpatterns = [
     path('api/coach/add-training-session/', AddTrainingSessionView.as_view(), name='add-training-session'),  # Only for coach
     path('api/coach/mark-attendance/', MarkAttendanceView.as_view(), name='mark-attendance'),  # Only for coach
     path('api/coach/director/create-club-activity/', CreateClubActivityView.as_view(), name='create-club-activity'),  # Coach and Director
+    path('director-dashboard/', DirectorDashboardView.as_view(), name='director-dashboard'),
+
+
 ]
 
 if settings.DEBUG:

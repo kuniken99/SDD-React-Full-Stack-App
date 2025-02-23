@@ -154,4 +154,4 @@ class ClubActivity(models.Model):
         ordering = ['date']
 
     def __str__(self):
-        return f"{self.name} - {self.status} ({self.participants.count()}/{self.max_participants})"
+        return f"{self.name} - {self.status} ({self.registered_participants.count()}/{self.max_participants})"

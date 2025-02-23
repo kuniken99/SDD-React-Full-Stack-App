@@ -11,12 +11,21 @@ import CompanyInfo from "./pages/CompanyInfo";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsCondition from "./pages/TermsCondition";
 import Home from "./pages/Home"; // Public home page
+import "./App.css";
+
+// Artist
 import HomeArtist from "./pages/Artist/HomeArtist";
-import HomeCoach from "./pages/Coach/HomeCoach";
-import HomeDirector from "./pages/Director/HomeDirector";
 import ArtistProfile from "./pages/Artist/ArtistProfile";
 
-import "./App.css";
+// Coach
+import HomeCoach from "./pages/Coach/HomeCoach";
+
+// Director
+import HomeDirector from "./pages/Director/HomeDirector";
+import ManageArtists from "./pages/Director/ManageArtists";
+import CreateClubActivities from "./pages/Director/CreateClubActivities";
+import ViewInjuries from "./pages/Director/ViewInjuries";
+
 
 function Logout() {
   localStorage.clear();
@@ -69,11 +78,20 @@ function App() {
         <Route path="/CompanyInfo" element={<CompanyInfo />} />
         <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
         <Route path="/TermsCondition" element={<TermsCondition />} />
+        
+        {/* Artist routes */}
         <Route path="/HomeArtist" element={<HomeArtist />} />
-        <Route path="/HomeCoach" element={<HomeCoach />} />
-        <Route path="/HomeDirector" element={<HomeDirector />} />
-
         <Route path="/profile" element={<ArtistProfile />} />
+        
+        {/* Coach routes */}
+        <Route path="/HomeCoach" element={<HomeCoach />} />
+
+        {/* Director routes */}
+        <Route path="/HomeDirector" element={<HomeDirector />} />
+        <Route path="/manage-artists" element={<ManageArtists />} />
+        <Route path="/create-club-activities" element={<CreateClubActivities />} />
+        <Route path="/view-injuries" element={<ViewInjuries />} />
+               
       </Routes>
 
       <PublicFooter />

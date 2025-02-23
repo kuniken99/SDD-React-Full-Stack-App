@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../../styles/Artist/ArtistProfile.css";
+import "../../styles/Director/DirectorProfile.css";
 import api from "../../api";
 import profilePlaceholder from "../../assets/ProfilePic.png"; 
 import pencilIcon from "../../assets/Pencil.png";
 
-function ArtistProfile() {
+function DirectorProfile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,16 +15,14 @@ function ArtistProfile() {
   const [otpSent, setOtpSent] = useState(false); // Track if OTP is sent
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false); // Track if password is updated
   const [emailChangeSuccess, setEmailChangeSuccess] = useState(false); // Track if email change was successful
-  
   const [selectedFile, setSelectedFile] = useState(null); // State to store selected file
   const [preview, setPreview] = useState(null); // State to store preview URL
   const fileInputRef = useRef(null);
-
   const modalRef = useRef(null);
 
   async function fetchProfile() {
     try {
-      const response = await api.get("/api/artist-info/");
+      const response = await api.get("/api/director-info/");
       setProfile(response.data);
     } catch (err) {
       console.error("Error fetching profile:", err);
@@ -73,8 +71,6 @@ function ArtistProfile() {
     setOtp(e.target.value);
   };
 
-
-  // Profile Picture
   const handleProfilePicClick = () => {
     fileInputRef.current.click();
   };
@@ -98,7 +94,7 @@ function ArtistProfile() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       // Re-fetch profile data after upload
-      const response = await api.get("/api/artist-info/");
+      const response = await api.get("/api/director-info/");
       setProfile(response.data);
       setPreview(null);
     } catch (error) {
@@ -106,9 +102,6 @@ function ArtistProfile() {
       setError("Failed to update profile picture.");
     }
   };
-
-
-
 
   // Request OTP to user's email
   const handleRequestOtp = async () => {
@@ -185,14 +178,14 @@ function ArtistProfile() {
   if (error) return <p className="error-message">{error}</p>;
 
   return (
-    <div className="artist-profile">
+    <div className="director-profile">
       <h1>Profile</h1>
     
     {/* Profile Pic */}
-    <div className="artist-profile-container">
+    <div className="director-profile-container">
       <div className="profile-left">
         <div className="profile-pic-wrapper" onClick={handleProfilePicClick}>
-          <img src={(profile.profile_picture && `${api.defaults.baseURL}${profile.profile_picture}`) || profilePlaceholder} alt="Profile" className="profile-pic" />
+          <img src={preview || (profile.profile_picture && `${api.defaults.baseURL}${profile.profile_picture}`) || profilePlaceholder} alt="Profile" className="profile-pic" />
           <img src={pencilIcon} alt="Edit" className="edit-icon" />
         </div>
         <input 
@@ -202,9 +195,8 @@ function ArtistProfile() {
           style={{ display: "none" }} 
           onChange={handleFileChange} 
         />
-
-        <h2 className="artist-name">{profile.full_name}</h2>
-        <p className="user-type">Artist</p>
+        <h2 className="director-name">{profile.full_name}</h2>
+        <p className="user-type">Director</p>
       </div>
 
       {/* Profile Details */}
@@ -228,8 +220,8 @@ function ArtistProfile() {
         </div>
 
         <div className="profile-field no-change-btn">
-          <label>Coach Name:</label>
-          <input type="text" value={profile.coach_name} readOnly />
+          <label>Club Name:</label>
+          <input type="text" value={profile.club_name} readOnly />
         </div>
 
         <div className="profile-field no-change-btn">
@@ -237,20 +229,11 @@ function ArtistProfile() {
           <input type="text" value={profile.dob} readOnly />
         </div>
 
-        <div className="profile-field no-change-btn">
-          <label>Guardian Name:</label>
-          <input type="text" value={profile?.guardian_name} readOnly />
-        </div>
-
         <p className="support-message">
-          PS: To change coach name and guardian name, please contact us at {" "}
+          PS: To change club name, please contact us at {" "}
           <a href="mailto:support@dancelah.com">support@dancelah.com</a>
         </p>
       </div>
-
-
-
-
 
       {/* Modal for editing full name */}
       {editingField === "full_name" && (
@@ -273,7 +256,6 @@ function ArtistProfile() {
           </div>
         </div>
       )}
-
 
       {editingField === "password" && !otpSent && (
         <div className="modal" ref={modalRef}>
@@ -316,7 +298,6 @@ function ArtistProfile() {
         </div>
       )}
 
-      	
       {/* Modal for email change with OTP */}
       {editingField === "email" && !otpSent && (
         <div className="modal" ref={modalRef}>
@@ -358,7 +339,6 @@ function ArtistProfile() {
         </div>
       )}
 
-
       {passwordChangeSuccess && (
         <div className="success-message">
           <p>Password updated successfully!</p>
@@ -373,8 +353,7 @@ function ArtistProfile() {
 
     </div>
     </div>
-
   );
 }
 
-export default ArtistProfile;
+export default DirectorProfile;

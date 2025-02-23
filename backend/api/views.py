@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
+from django.db.models import Sum, Count
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password
@@ -27,6 +28,7 @@ from .serializers import (
     ClubActivitySerializer,
 )
 from django.core.mail import send_mail
+from django.db import models
 from django.conf import settings
 import random
 import time
@@ -428,33 +430,40 @@ class DirectorDashboardView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        total_artists = User.objects.filter(role='Artist').count()
+        # Ensure the user is a director
+        user = request.user
+        if user.role != 'director':
+            return Response({"detail": "User is not a director."}, status=403)
+        
+        # Fetch the required data
+        total_artists = User.objects.filter(role='artist').count()
         total_sessions = TrainingSession.objects.count()
-        total_hours_logged = sum([session.duration_minutes for session in TrainingSession.objects.all()]) / 60
+        total_hours_logged = sum([session.duration for session in TrainingSession.objects.all()]) / 60
         ongoing_injuries = Injury.objects.filter(severity="Moderate").count()
         severe_injuries = Injury.objects.filter(severity="Severe").count()
         recovering_injuries = Injury.objects.filter(severity="Mild").count()
 
         # Top 3 artists with the most training sessions
         top_artists = (
-            User.objects.filter(role='Artist')
-            .annotate(session_count=models.Count('training_sessions'))
+            Artist.objects.annotate(session_count=Count('training_sessions'))
             .order_by('-session_count')[:3]
         )
 
         # Pie chart data for different types of training sessions
-        session_types = TrainingSession.objects.values('session_name').annotate(count=models.Count('id'))
+        session_types = TrainingSession.objects.values('name').annotate(count=Count('id'))
 
-        return Response({
+        data = {
             'total_artists': total_artists,
             'total_sessions': total_sessions,
             'total_hours_logged': total_hours_logged,
             'ongoing_injuries': ongoing_injuries,
             'severe_injuries': severe_injuries,
             'recovering_injuries': recovering_injuries,
-            'top_artists': [{'name': artist.full_name, 'attendance': artist.session_count} for artist in top_artists],
+            'top_artists': [{'name': artist.user.full_name, 'attendance': artist.session_count} for artist in top_artists],
             'session_types': session_types
-        })
+        }
+
+        return Response(data, status=200)
 
 class ProfilePictureUpdateView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -468,3 +477,12 @@ class ProfilePictureUpdateView(APIView):
             user.save()
             return Response({"message": "Profile picture updated successfully."}, status=200)
         return Response({"error": "No file uploaded"}, status=400)
+
+# ---------------------- Get User Info ----------------------
+class UserInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+        return Response(serializer.data)

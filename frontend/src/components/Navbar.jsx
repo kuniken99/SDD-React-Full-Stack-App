@@ -26,7 +26,7 @@ function Navbar() {
 
     const fetchProfilePic = async () => {
         try {
-            const response = await api.get("/api/artist-info/");
+            const response = await api.get("/api/user-info/");
             const profilePicUrl = response.data.profile_picture ? `${api.defaults.baseURL}${response.data.profile_picture}` : ProfilePicPlaceholder;
             setProfilePic(profilePicUrl);
         } catch (error) {
