@@ -220,11 +220,6 @@ function CoachProfile() {
         </div>
 
         <div className="profile-field no-change-btn">
-          <label>Club Name:</label>
-          <input type="text" value={profile.club_name} readOnly />
-        </div>
-
-        <div className="profile-field no-change-btn">
           <label>Date of Birth:</label>
           <input type="text" value={profile.dob} readOnly />
         </div>

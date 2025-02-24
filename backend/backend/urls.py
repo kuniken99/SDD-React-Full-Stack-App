@@ -26,6 +26,8 @@ from api.views import (
     MarkAttendanceView,
     CreateClubActivityView,
     DirectorInfoView,
+    CoachInfoView,
+    CoachDashboardView,
     
 )
 
@@ -60,8 +62,10 @@ urlpatterns = [
     path('api/coach/add-training-session/', AddTrainingSessionView.as_view(), name='add-training-session'),  # Only for coach
     path('api/coach/mark-attendance/', MarkAttendanceView.as_view(), name='mark-attendance'),  # Only for coach
     path('api/coach/director/create-club-activity/', CreateClubActivityView.as_view(), name='create-club-activity'),  # Coach and Director
-    path('api/director-dashboard/', DirectorDashboardView.as_view(), name='director-dashboard'),
+    path('director-dashboard/', DirectorDashboardView.as_view(), name='director-dashboard'),
+    path('coach-dashboard/', CoachDashboardView.as_view(), name='coach-dashboard'),
     path('api/director-info/', DirectorInfoView.as_view(), name='director-info'),
+    path('api/coach-info/', CoachInfoView.as_view(), name='coach-info'),
 
 
 ]

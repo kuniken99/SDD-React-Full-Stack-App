@@ -7,6 +7,8 @@ from .views import (
     DirectorDashboardView,
     UserInfoView,
     DirectorInfoView,
+    CoachInfoView,
+    CoachDashboardView,
 )
 
 urlpatterns = [
@@ -15,7 +17,9 @@ urlpatterns = [
     path("artist-info/", ArtistInfoView.as_view(), name="artist-info"),
     path('update-profile-picture/', ProfilePictureUpdateView.as_view(), name='update-profile-picture'),
     path('director-dashboard/', DirectorDashboardView.as_view(), name='director-dashboard'),
+    path('coach-dashboard/', CoachDashboardView.as_view(), name='coach-dashboard'),
     path('user-info/', UserInfoView.as_view(), name='user-info'), 
     path('director-info/', DirectorInfoView.as_view(), name='director-info'),
+    path('coach-info/', CoachInfoView.as_view(), name='coach-info'),
 
 ]

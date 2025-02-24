@@ -20,7 +20,6 @@ const HomeDirector = () => {
 
         fetchData();
 
-
         if (location.hash) {
             setTimeout(() => {
                 const sectionId = location.hash.replace("#", "");
@@ -39,8 +38,8 @@ const HomeDirector = () => {
             <section className="hero">
                 <div className="section-content">
                     <div className="hero-content">
-                        <h1>WELCOME DIRECTOR!</h1>
-
+                        <h1>WELCOME DIRECTOR {data.full_name.toUpperCase()}!</h1>
+                        
                         <h2>Total Registered Active Artists: {data.total_artists}</h2>
                         <h2>Total Training Sessions: {data.total_sessions}</h2>
                         <h2>Total Hours Logged: {data.total_hours_logged}</h2>

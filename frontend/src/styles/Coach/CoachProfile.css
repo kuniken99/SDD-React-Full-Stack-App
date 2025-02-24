@@ -1,0 +1,16 @@
+.coach-profile {
+    text-align: center;
+    background: #D7C9D2;
+    padding: 20px;
+  }
+  
+  .coach-profile-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+  }
+  
+  .coach-profile-container h2 {
+    font-size: 26px;
+    font-weight: bold;
+  }

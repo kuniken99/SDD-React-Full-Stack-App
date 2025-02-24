@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Avg
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password
@@ -453,6 +453,7 @@ class DirectorDashboardView(APIView):
         session_types = TrainingSession.objects.values('name').annotate(count=Count('id'))
 
         data = {
+            'full_name': user.full_name,
             'total_artists': total_artists,
             'total_sessions': total_sessions,
             'total_hours_logged': total_hours_logged,
@@ -464,7 +465,25 @@ class DirectorDashboardView(APIView):
         }
 
         return Response(data, status=200)
+    
+class CoachDashboardView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        user = request.user
+        if user.role != 'coach':
+            return Response({"detail": "User is not a coach."}, status=403)
+        
+        data = {
+            "full_name": user.full_name,
+            "total_sessions":  TrainingSession.objects.count(),
+            "total_hours_logged": sum([session.duration for session in TrainingSession.objects.all()]) / 60,
+            "ongoing_injuries": Injury.objects.filter(severity="Ongoing").count(),
+            "severe_injuries": Injury.objects.filter(severity="Severe").count(),
+            "recovering_injuries": Injury.objects.filter(severity="Recovering").count(),
+        }
+        return Response(data)
+        
 class ProfilePictureUpdateView(APIView):
     parser_classes = (MultiPartParser, FormParser)
     permission_classes = [IsAuthenticated]
@@ -507,5 +526,16 @@ class DirectorInfoView(APIView):
         user = request.user
         if user.role != 'director':
             return Response({"detail": "User is not a director."}, status=403)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    
+
+class CoachInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.role != 'coach':
+            return Response({"detail": "User is not a coach."}, status=403)
         serializer = UserSerializer(user)
         return Response(serializer.data)

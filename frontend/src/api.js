@@ -131,4 +131,13 @@ export const createClubActivity = (data) => {
     });
 };
 
+export const getCoachDashboard = () => {
+  return api.get('/api/coach/dashboard/')
+    .then(response => response.data)
+    .catch(error => {
+      console.error('Error fetching coach dashboard:', error);
+      throw error;
+    });
+};
+
 export default api;
