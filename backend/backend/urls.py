@@ -28,7 +28,7 @@ from api.views import (
     DirectorInfoView,
     CoachInfoView,
     CoachDashboardView,
-    
+    VerifyOtpAndActivateUserView,
 )
 
 urlpatterns = [
@@ -40,7 +40,7 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls")),
     path("api/", include("api.urls")),  # Include user routes for registration and login
     path('api/user-info/', UserInfoView.as_view(), name='user-info'), 
-
+    path("api/user/verify-otp/", VerifyOtpAndActivateUserView.as_view(), name="verify-otp"),  # OTP verification endpoint
     # ---------------------- Artist Views ----------------------
     path('api/artist-info/', ArtistInfoView.as_view(), name='artist-info'),
     path('api/artist/training-sessions/', ArtistTrainingSessionsView.as_view(), name='artist-training-sessions'),

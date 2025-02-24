@@ -152,8 +152,6 @@ class ArtistInfoView(APIView):
     
 class RegisterView(APIView):
     def post(self, request):
-        print("Request data:", request.data)  # DebuggingLog incoming request data
-
         full_name = request.data.get('full_name')
         email = request.data.get("email", "").strip().lower()  # Convert to lowercase
         password = request.data.get('password')
@@ -178,14 +176,6 @@ class RegisterView(APIView):
         if User.objects.filter(email__iexact=email).exists():
             return Response({"error": "Email already registered."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Initialize the serializer with the incoming data
-        serializer = RegisterSerializer(data=request.data)
-
-        # Validate the serializer
-        if not serializer.is_valid():
-            print("Serializer errors:", serializer.errors)  # Log validation errors for debugging
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
         # Create user
         user = User.objects.create_user(
             username=email,  # Use email as the username
@@ -198,10 +188,7 @@ class RegisterView(APIView):
             guardian_name=guardian_name
         )
 
-        # Generate JWT tokens
-        refresh = RefreshToken.for_user(user)
-
-# Generate OTP
+        # Generate OTP
         otp = random.randint(100000, 999999)
         otp_storage[email] = {"otp": otp, "timestamp": time.time()}
 
@@ -213,13 +200,41 @@ class RegisterView(APIView):
 
         return Response({"message": "User registered successfully. OTP sent to email."}, status=status.HTTP_201_CREATED)
 
-        return Response({
-            "message": "User registered successfully.",
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-            "role": user.role,
-        }, status=status.HTTP_201_CREATED)
+class VerifyOtpAndActivateUserView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        otp_input = request.data.get('otp')
 
+        # Check if the OTP exists for the email
+        otp_data = otp_storage.get(email)
+
+        if not otp_data:
+            return Response({"error": "OTP not found or expired."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if otp_data["otp"] != int(otp_input):
+            return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Activate user
+        User = get_user_model()
+        try:
+            user = User.objects.get(email=email)
+            user.is_active = True
+            user.save()
+
+            # Clear OTP after successful verification
+            del otp_storage[email]
+
+            # Generate JWT tokens
+            refresh = RefreshToken.for_user(user)
+
+            return Response({
+                "message": "Email verified successfully. User activated.",
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "role": user.role,
+            }, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get("email", "").strip() # Keep user's input case

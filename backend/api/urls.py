@@ -9,6 +9,7 @@ from .views import (
     DirectorInfoView,
     CoachInfoView,
     CoachDashboardView,
+    VerifyOtpAndActivateUserView,
 )
 
 urlpatterns = [
@@ -21,5 +22,5 @@ urlpatterns = [
     path('user-info/', UserInfoView.as_view(), name='user-info'), 
     path('director-info/', DirectorInfoView.as_view(), name='director-info'),
     path('coach-info/', CoachInfoView.as_view(), name='coach-info'),
-
+    path("user/verify-otp/", VerifyOtpAndActivateUserView.as_view(), name="verify-otp"),  # OTP verification endpoint
 ]
