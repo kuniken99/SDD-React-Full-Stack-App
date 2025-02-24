@@ -52,8 +52,8 @@ const HomeArtist = () => {
                         
                         <p className="attendance">Attendance Rate: {artistInfo.attendance_rate}% <Link to="/ViewAttendance" className="view-more">View More</Link></p>
                         <div className="hero-buttons">
-                            <Link to="/ClubActivities" className="btn-primary">View Club Activities</Link>
-                            <Link to="/ManageInjury" className="btn-secondary">+ Report New Injury</Link>
+                            <Link to="/view-club-activities" className="btn-primary">View Club Activities</Link>
+                            <Link to="/record-injuries" className="btn-secondary">+ Report New Injury</Link>
                         </div>
 
                         <div className="recent-training">
@@ -63,7 +63,7 @@ const HomeArtist = () => {
                                 <p><strong>Coach:</strong> John Doe</p>
                                 <p><strong>Status:</strong> Present</p>
                             </div>
-                            <Link to="/TrainingSessions" className="btn-primary">View All Trainings</Link>
+                            <Link to="/view-training-sessions" className="btn-primary">View All Trainings</Link>
                         </div>
                     </div>
                     <img src={HomeDance} alt="Dancing Performance" className="hero-image" />

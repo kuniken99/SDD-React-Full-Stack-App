@@ -27,13 +27,13 @@ const HomeDirector = () => {
             }, 100); // Small delay ensures section is rendered before scrolling
         }
     }, [location]);
-    	
+        
     if (!data) {
         return <p>Loading...</p>;
     }
 
     return (
-        <div className="home">
+        <div className="home-director">
             {/* Home Section */}
             <section className="hero">
                 <div className="section-content">
@@ -43,10 +43,14 @@ const HomeDirector = () => {
                         <h2>Total Registered Active Artists: {data.total_artists}</h2>
                         <h2>Total Training Sessions: {data.total_sessions}</h2>
                         <h2>Total Hours Logged: {data.total_hours_logged}</h2>
+                        <Link to="/manage-artists" className="cta-button">✎ Manage Artists</Link>
+                        <Link to="/create-club-activities" className="cta-button g">+ Add New Club Activities</Link>
+                        
                         <h3>Recent Injury Reports</h3>
                         <p>Total Active Injuries: {data.ongoing_injuries}</p>
                         <p>Severe Injuries: {data.severe_injuries}</p>
                         <p>Recovering Injuries: {data.recovering_injuries}</p>
+                        <Link to="/view-injuries" className="cta-button injury">View All Injuries</Link>
 
                     </div>
                     <img src={HomeDance} alt="Dancing Performance" className="hero-image" />

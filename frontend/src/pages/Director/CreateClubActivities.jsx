@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import api from "../../api";
-import "../../styles/Director/CreateClubActivities.css";
+import "../../styles/TableStyles.css";
 
 const CreateClubActivities = () => {
     const [activityName, setActivityName] = useState("");

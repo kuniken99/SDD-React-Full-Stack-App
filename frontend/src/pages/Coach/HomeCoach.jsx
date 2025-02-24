@@ -33,7 +33,7 @@ const HomeCoach = () => {
     }
 
     return (
-        <div className="home">
+        <div className="home-coach">
             {/* Home Section */}
             <section className="hero">
                 <div className="section-content">
@@ -42,17 +42,17 @@ const HomeCoach = () => {
                         
                         <h2>Total Sessions Conducted: {data.total_sessions}</h2>
                         <h2>Total Hours Logged: {data.total_hours_logged}</h2>
+                        <div className="button-container">
+                            <Link to="/update-training" className="cta-button">+ Add New Training</Link>
+                            <Link to="/mark-attendance" className="cta-button g">+ Mark Attendance</Link>
+                            <Link to="/create-club-activities" className="cta-button g">+ Add New Club Activities</Link>
+                        </div>
                         <h3>Recent Injury Reports</h3>
                         <p>Total Active Injuries: {data.ongoing_injuries}</p>
                         <p>Severe Injuries: {data.severe_injuries}</p>
                         <p>Recovering Injuries: {data.recovering_injuries}</p>
+                            <Link to="/manage-injuries" className="cta-button injury">+ Report New Injuries</Link>
                         
-                        <div className="button-container">
-                            <Link to="/add-training" className="cta-button">Add New Training</Link>
-                            <Link to="/mark-attendance" className="cta-button">Mark Attendance</Link>
-                            <Link to="/add-club-activities" className="cta-button">Add New Club Activities</Link>
-                            <Link to="/view-injuries" className="cta-button">View All Injuries</Link>
-                        </div>
                     </div>
                     <img src={HomeDance} alt="Dancing Performance" className="hero-image" />
                 </div>

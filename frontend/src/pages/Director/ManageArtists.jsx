@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api";
-import "../../styles/Director/ManageArtists.css";
+import "../../styles/TableStyles.css";
 
 const ManageArtists = () => {
     const [artists, setArtists] = useState([]);

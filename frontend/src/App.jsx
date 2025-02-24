@@ -16,10 +16,17 @@ import "./App.css";
 // Artist
 import HomeArtist from "./pages/Artist/HomeArtist";
 import ArtistProfile from "./pages/Artist/ArtistProfile";
+import ViewAttendance from "./pages/Artist/ViewAttendance";
+import ViewClubActivities from "./pages/Artist/ViewClubActivities";
+import RecordInjuries from "./pages/Artist/RecordInjuries";
+import ViewTrainingSessions from "./pages/Artist/ViewTrainingSessions";
 
 // Coach
 import HomeCoach from "./pages/Coach/HomeCoach";
 import CoachProfile from "./pages/Coach/CoachProfile";
+import ManageInjuries from "./pages/Coach/ManageInjuries";
+import MarkAttendance from "./pages/Coach/MarkAttendance";
+import UpdateTrainingStats from "./pages/Coach/UpdateTrainingStats";
 
 // Director
 import HomeDirector from "./pages/Director/HomeDirector";
@@ -84,10 +91,18 @@ function App() {
         {/* Artist routes */}
         <Route path="/HomeArtist" element={<HomeArtist />} />
         <Route path="/artist-profile" element={<ArtistProfile />} />
+        <Route path="/view-attendance" element={<ViewAttendance />} />
+        <Route path="/view-club-activities" element={<ViewClubActivities />} />
+        <Route path="/record-injuries" element={<RecordInjuries />} />
+        <Route path="/view-training-sessions" element={<ViewTrainingSessions />} />
+        
         
         {/* Coach routes */}
         <Route path="/HomeCoach" element={<HomeCoach />} />
         <Route path="/coach-profile" element={<CoachProfile />} />
+        <Route path="/update-training" element={<UpdateTrainingStats />} />
+        <Route path="/mark-attendance" element={<MarkAttendance />} />
+        <Route path="/manage-injuries" element={<ManageInjuries />} />
 
         {/* Director routes */}
         <Route path="/HomeDirector" element={<HomeDirector />} />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api";
-import "../../styles/Director/ViewInjuries.css";
+import "../../styles/TableStyles.css";
 
 const ViewInjuries = () => {
     const [injuries, setInjuries] = useState([]);

@@ -1,0 +1,37 @@
+
+.home-coach h2 {
+    font-size: 34px;
+}
+
+/* Hero Section */
+.home-coach .hero {
+    background: linear-gradient(to right, #D5C9D7, #6b2567); /* Blue gradient */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    text-align: left;
+    padding: 50px 0;
+    width: 100%;
+}
+
+.home-coach .hero p {
+    font-size: 20px;
+    opacity: 0.6;
+    margin-right: 30px;
+}
+
+.home-coach .cta-button {
+    margin-top: 10px;
+    margin-right: 50px;
+    padding: 15px;
+}
+
+
+.home-coach .cta-button.g {
+    background-color: #3d9140;
+}
+
+.home-coach .cta-button.injury {
+    background-color: #E74C3C;
+}

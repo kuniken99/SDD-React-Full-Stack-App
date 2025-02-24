@@ -122,8 +122,8 @@ function Navbar() {
                 {role === "director" && (
                     <>
                         <Link to="/manage-artists">Manage Artists</Link>
-                        <Link to="/club-activities">Create Club Activities</Link>
-                        <Link to="/track-injuries">Track Injuries Record</Link>
+                        <Link to="/create-club-activities">Create Club Activities</Link>
+                        <Link to="/view-injuries">Track Injuries Record</Link>
                     </>
                 )}
 

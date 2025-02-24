@@ -201,6 +201,17 @@ class RegisterView(APIView):
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
 
+# Generate OTP
+        otp = random.randint(100000, 999999)
+        otp_storage[email] = {"otp": otp, "timestamp": time.time()}
+
+        # Send OTP to email
+        subject = "OTP for Email Verification"
+        message = f"Your OTP for email verification is {otp}"
+        recipient_list = [email]
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
+
+        return Response({"message": "User registered successfully. OTP sent to email."}, status=status.HTTP_201_CREATED)
 
         return Response({
             "message": "User registered successfully.",
@@ -426,32 +437,73 @@ class CreateClubActivityView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+# old one using User instead of Artist object
+# class DirectorDashboardView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         # Ensure the user is a director
+#         user = request.user
+#         if user.role != 'director':
+#             return Response({"detail": "User is not a director."}, status=403)
+        
+#         # Fetch the required data
+#         total_artists = User.objects.filter(role='artist').count()
+#         total_sessions = TrainingSession.objects.count()
+#         total_hours_logged = sum([session.duration for session in TrainingSession.objects.all()]) / 60
+#         ongoing_injuries = Injury.objects.filter(severity="Moderate").count()
+#         severe_injuries = Injury.objects.filter(severity="Severe").count()
+#         recovering_injuries = Injury.objects.filter(severity="Mild").count()
+
+#         # Top 3 artists with the most training sessions
+#         top_artists = (
+#             Artist.objects.annotate(session_count=Count('training_attendance'))
+#             .order_by('-session_count')[:3]
+#         )
+
+#         # Pie chart data for different types of training sessions
+#         session_types = TrainingSession.objects.values('session_name').annotate(count=Count('id'))
+
+#         data = {
+#             'full_name': user.full_name,
+#             'total_artists': total_artists,
+#             'total_sessions': total_sessions,
+#             'total_hours_logged': total_hours_logged,
+#             'ongoing_injuries': ongoing_injuries,
+#             'severe_injuries': severe_injuries,
+#             'recovering_injuries': recovering_injuries,
+#             'top_artists': [{'name': artist.user.full_name, 'attendance': artist.session_count} for artist in top_artists],
+#             'session_types': session_types
+#         }
+
+#         return Response(data, status=200)
+
 
 class DirectorDashboardView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # Ensure the user is a director
         user = request.user
         if user.role != 'director':
             return Response({"detail": "User is not a director."}, status=403)
         
-        # Fetch the required data
-        total_artists = User.objects.filter(role='artist').count()
+        total_artists = Artist.objects.count()
         total_sessions = TrainingSession.objects.count()
-        total_hours_logged = sum([session.duration for session in TrainingSession.objects.all()]) / 60
-        ongoing_injuries = Injury.objects.filter(severity="Moderate").count()
+        total_hours_logged = TrainingSession.objects.aggregate(Sum('duration'))['duration__sum']
+        ongoing_injuries = Injury.objects.filter(severity="Ongoing").count()
         severe_injuries = Injury.objects.filter(severity="Severe").count()
-        recovering_injuries = Injury.objects.filter(severity="Mild").count()
+        recovering_injuries = Injury.objects.filter(severity="Recovering").count()
 
         # Top 3 artists with the most training sessions
         top_artists = (
-            Artist.objects.annotate(session_count=Count('training_sessions'))
+            Artist.objects.annotate(session_count=Count('training_attendance'))
             .order_by('-session_count')[:3]
         )
 
         # Pie chart data for different types of training sessions
-        session_types = TrainingSession.objects.values('name').annotate(count=Count('id'))
+        session_types = TrainingSession.objects.values('session_name').annotate(count=Count('id'))
 
         data = {
             'full_name': user.full_name,
@@ -466,7 +518,7 @@ class DirectorDashboardView(APIView):
         }
 
         return Response(data, status=200)
-
+    
 class CoachDashboardView(APIView):
     permission_classes = [IsAuthenticated]
 
