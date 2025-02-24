@@ -6,6 +6,7 @@ from .views import (
     ProfilePictureUpdateView, 
     DirectorDashboardView,
     UserInfoView,
+    DirectorInfoView,
 )
 
 urlpatterns = [
@@ -15,5 +16,6 @@ urlpatterns = [
     path('update-profile-picture/', ProfilePictureUpdateView.as_view(), name='update-profile-picture'),
     path('director-dashboard/', DirectorDashboardView.as_view(), name='director-dashboard'),
     path('user-info/', UserInfoView.as_view(), name='user-info'), 
+    path('director-info/', DirectorInfoView.as_view(), name='director-info'),
 
 ]

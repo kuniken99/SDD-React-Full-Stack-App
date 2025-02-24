@@ -219,10 +219,6 @@ function DirectorProfile() {
           <button className="change-btn" onClick={() => handleChangeClick("password")}>Change</button>
         </div>
 
-        <div className="profile-field no-change-btn">
-          <label>Club Name:</label>
-          <input type="text" value={profile.club_name} readOnly />
-        </div>
 
         <div className="profile-field no-change-btn">
           <label>Date of Birth:</label>

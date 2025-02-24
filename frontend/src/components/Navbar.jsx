@@ -52,8 +52,8 @@ function Navbar() {
         }
     };
 
-     // Determine the home page based on the user's role
-     const getHomePage = () => {
+    // Determine the home page based on the user's role
+    const getHomePage = () => {
         switch (role) {
             case "artist":
                 return "/HomeArtist";
@@ -63,6 +63,18 @@ function Navbar() {
                 return "/HomeDirector";
             default:
                 return "/";
+        }
+    };
+
+    // Determine the profile page based on the user's role
+    const getProfilePage = () => {
+        switch (role) {
+            case "artist":
+                return "/artist-profile";
+            case "coach":
+                return "/coach-profile";
+            case "director":
+                return "/director-profile";
         }
     };
 
@@ -128,8 +140,8 @@ function Navbar() {
                     </>
                 ) : (
                     <>
-                        {/* Profile Icon (Placeholder) */}
-                        <Link to="/profile">
+                        {/* Profile Icon */}
+                        <Link to={getProfilePage()}>
                             <img src={profilePic} alt="Profile" className="profile-icon" />
                         </Link>
                         {/* Logout Button */}

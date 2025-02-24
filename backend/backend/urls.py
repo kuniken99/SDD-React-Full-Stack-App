@@ -24,7 +24,9 @@ from api.views import (
     AddInjuryView,
     AddTrainingSessionView,
     MarkAttendanceView,
-    CreateClubActivityView
+    CreateClubActivityView,
+    DirectorInfoView,
+    
 )
 
 urlpatterns = [
@@ -50,7 +52,7 @@ urlpatterns = [
     path('api/verify-otp-and-change-password/', VerifyOTPAndChangePasswordView.as_view(), name='verify_otp_and_change_password'),
     path('api/request-email-change-otp/', RequestEmailChangeOtpAPIView.as_view(), name='request_email_change_otp'),
     path('api/verify-otp-and-change-email/', VerifyOtpAndChangeEmailAPIView.as_view(), name='verify_otp_and_change_email'),
-    path('update-profile-picture/', ProfilePictureUpdateView.as_view(), name='update-profile-picture'),
+    path('api/update-profile-picture/', ProfilePictureUpdateView.as_view(), name='update-profile-picture'),
     
     # ---------------------- Coach/Director Views ----------------------
     path('api/coach/director/injuries/', AllInjuriesView.as_view(), name='all-injuries'),  # Only for coach and director
@@ -58,7 +60,8 @@ urlpatterns = [
     path('api/coach/add-training-session/', AddTrainingSessionView.as_view(), name='add-training-session'),  # Only for coach
     path('api/coach/mark-attendance/', MarkAttendanceView.as_view(), name='mark-attendance'),  # Only for coach
     path('api/coach/director/create-club-activity/', CreateClubActivityView.as_view(), name='create-club-activity'),  # Coach and Director
-    path('director-dashboard/', DirectorDashboardView.as_view(), name='director-dashboard'),
+    path('api/director-dashboard/', DirectorDashboardView.as_view(), name='director-dashboard'),
+    path('api/director-info/', DirectorInfoView.as_view(), name='director-info'),
 
 
 ]

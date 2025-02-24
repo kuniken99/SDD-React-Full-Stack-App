@@ -19,12 +19,14 @@ import ArtistProfile from "./pages/Artist/ArtistProfile";
 
 // Coach
 import HomeCoach from "./pages/Coach/HomeCoach";
+import CoachProfile from "./pages/Coach/CoachProfile";
 
 // Director
 import HomeDirector from "./pages/Director/HomeDirector";
 import ManageArtists from "./pages/Director/ManageArtists";
 import CreateClubActivities from "./pages/Director/CreateClubActivities";
 import ViewInjuries from "./pages/Director/ViewInjuries";
+import DirectorProfile from "./pages/Director/DirectorProfile";
 
 
 function Logout() {
@@ -81,16 +83,18 @@ function App() {
         
         {/* Artist routes */}
         <Route path="/HomeArtist" element={<HomeArtist />} />
-        <Route path="/profile" element={<ArtistProfile />} />
+        <Route path="/artist-profile" element={<ArtistProfile />} />
         
         {/* Coach routes */}
         <Route path="/HomeCoach" element={<HomeCoach />} />
+        <Route path="/coach-profile" element={<CoachProfile />} />
 
         {/* Director routes */}
         <Route path="/HomeDirector" element={<HomeDirector />} />
         <Route path="/manage-artists" element={<ManageArtists />} />
         <Route path="/create-club-activities" element={<CreateClubActivities />} />
         <Route path="/view-injuries" element={<ViewInjuries />} />
+        <Route path="/director-profile" element={<DirectorProfile />} />
                
       </Routes>
 

@@ -486,3 +486,26 @@ class UserInfoView(APIView):
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
+
+# class DirectorInfoViewi(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+#         if user.role != 'director':
+#             return Response({"detail": "User is not a director."}, status=403)
+#         try:
+#             serializer = DirectorSerializer(user.director_profile)
+#             return Response(serializer.data)
+#         except Director.DoesNotExist:
+#             return Response({"detail": "Director profile does not exist."}, status=404)
+
+class DirectorInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.role != 'director':
+            return Response({"detail": "User is not a director."}, status=403)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
