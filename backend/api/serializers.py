@@ -121,10 +121,13 @@ class TrainingSessionSerializer(serializers.ModelSerializer):
     artists = ArtistSerializer(many=True, read_only=True)
     duration = serializers.IntegerField()
     location = serializers.CharField(max_length=255)
+    skills_improved = serializers.CharField(max_length=255, required=False)
+    performance_rating = serializers.IntegerField(required=False)
+    coach_notes = serializers.CharField(required=False)
 
     class Meta:
         model = TrainingSession
-        fields = ['id', 'name', 'coach', 'date', 'artists', 'duration', 'location']
+        fields = ['id', 'name', 'coach', 'date', 'artists', 'duration', 'location', 'skills_improved', 'performance_rating', 'coach_notes']
 
 # Training Attendance Serializer
 class TrainingAttendanceSerializer(serializers.ModelSerializer):
@@ -156,4 +159,4 @@ class ClubActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClubActivity
-        fields = ['id', 'name', 'date', 'location', 'max_participants', 'registered_participants', 'status']
+        fields = ['id', 'name', 'date', 'location', 'max_participants', 'registered_participants', 'status', 'description']

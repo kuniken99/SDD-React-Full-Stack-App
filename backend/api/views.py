@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets, permissions
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import User, Artist, Coach, Director, TrainingSession, TrainingAttendance, Injury, ClubActivity
 from .serializers import (
@@ -465,7 +466,7 @@ class DirectorDashboardView(APIView):
         }
 
         return Response(data, status=200)
-    
+
 class CoachDashboardView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -483,7 +484,83 @@ class CoachDashboardView(APIView):
             "recovering_injuries": Injury.objects.filter(severity="Recovering").count(),
         }
         return Response(data)
+    
+
+# class CoachDashboardView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+#         if user.role != 'coach':
+#             return Response({"detail": "User is not a coach."}, status=403)
         
+#         try:
+#             coach = user.coach_profile
+#             total_sessions = TrainingSession.objects.filter(coach=coach).count()
+#             average_attendance_rate = TrainingSession.objects.filter(coach=coach).aggregate(Avg('attendance_rate'))['attendance_rate__avg']
+#             total_hours_logged = TrainingSession.objects.filter(coach=coach).aggregate(Sum('duration'))['duration__sum']
+#             ongoing_injuries = Injury.objects.filter(status="Ongoing").count()
+#             severe_injuries = Injury.objects.filter(severity="Severe").count()
+#             recovering_injuries = Injury.objects.filter(status="Recovering").count()
+
+#             data = {
+#                 "full_name": user.full_name,
+#                 "total_sessions": total_sessions,
+#                 "average_attendance_rate": average_attendance_rate,
+#                 "total_hours_logged": total_hours_logged,
+#                 "ongoing_injuries": ongoing_injuries,
+#                 "severe_injuries": severe_injuries,
+#                 "recovering_injuries": recovering_injuries,
+#             }
+#             return Response(data)
+#         except Coach.DoesNotExist:
+#             return Response({"detail": "Coach profile does not exist."}, status=404)
+
+
+class TrainingSessionViewSet(viewsets.ModelViewSet):
+    queryset = TrainingSession.objects.all()
+    serializer_class = TrainingSessionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if user.role != 'coach':
+            raise PermissionDenied("Only coaches can create training sessions.")
+        serializer.save(coach=user.coach_profile)
+
+class TrainingAttendanceViewSet(viewsets.ModelViewSet):
+    queryset = TrainingAttendance.objects.all()
+    serializer_class = TrainingAttendanceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if user.role != 'coach':
+            raise PermissionDenied("Only coaches can mark attendance.")
+        serializer.save()
+
+class InjuryViewSet(viewsets.ModelViewSet):
+    queryset = Injury.objects.all()
+    serializer_class = InjurySerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if user.role != 'coach':
+            raise PermissionDenied("Only coaches can add injuries.")
+        serializer.save()
+
+class ClubActivityViewSet(viewsets.ModelViewSet):
+    queryset = ClubActivity.objects.all()
+    serializer_class = ClubActivitySerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if user.role not in ['coach', 'director']:
+            raise PermissionDenied("Only coaches or directors can create club activities.")
+        serializer.save()
+
 class ProfilePictureUpdateView(APIView):
     parser_classes = (MultiPartParser, FormParser)
     permission_classes = [IsAuthenticated]

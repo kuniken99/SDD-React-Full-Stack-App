@@ -11,8 +11,8 @@ class User(AbstractUser):
     
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='artist')
-    dob = models.DateField()
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES, default="")
+    dob = models.DateField(null=True, blank=True)
     guardian_name = models.CharField(max_length=255, blank=True, null=True, default="N/A")
     coach_name = models.CharField(max_length=255, null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
@@ -73,7 +73,7 @@ class Artist(models.Model):
 
 # ---------------------- Coach Model (For Training Sessions) ----------------------
 class Coach(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='coach_profile')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='coach_profile')
 
     def __str__(self):
         return self.user.full_name
@@ -89,17 +89,20 @@ class Director(models.Model):
     
 # ---------------------- Training Session Model ----------------------
 class TrainingSession(models.Model):
-    name = models.CharField(max_length=255)
-    coach = models.ForeignKey(Coach, on_delete=models.CASCADE, related_name="sessions")
+    coach = models.ForeignKey(Coach, on_delete=models.CASCADE, related_name='sessions')
     date = models.DateField()
-    artists = models.ManyToManyField(Artist, through='TrainingAttendance', related_name="training_sessions")
-    duration = models.IntegerField(default=0)  # Duration in minutes
-    location = models.CharField(max_length=255, default="unknown")
+    session_name = models.CharField(max_length=255, default="")
+    skills_improved = models.TextField(default="")
+    performance_rating = models.IntegerField(default=0)
+    artist_name = models.CharField(max_length=255, default="")
+    duration = models.IntegerField()
+    coach_notes = models.TextField(default="")
 
     class Meta:
         ordering = ['-date']
 
     def __str__(self):
+        return f"{self.session_name} ({self.date}) - {self.coach.user.full_name}"
         return f"{self.name} ({self.date}) - {self.coach.user.full_name}"
 
 # ---------------------- Training Attendance Model ----------------------
@@ -149,6 +152,7 @@ class ClubActivity(models.Model):
     max_participants = models.IntegerField()
     registered_participants = models.ManyToManyField(Artist, related_name="club_activities", blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Upcoming')
+    description = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ['date']
