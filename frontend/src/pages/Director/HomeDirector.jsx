@@ -49,7 +49,7 @@ const HomeDirector = () => {
                         <h3>Recent Injury Reports</h3>
                         <p>Total Active Injuries: {data.ongoing_injuries}</p>
                         <p>Severe Injuries: {data.severe_injuries}</p>
-                        <p>Recovering Injuries: {data.recovering_injuries}</p>
+                        <p>Mild Injuries: {data.recovering_injuries}</p>
                         <Link to="/view-injuries" className="cta-button injury">View All Injuries</Link>
 
                     </div>

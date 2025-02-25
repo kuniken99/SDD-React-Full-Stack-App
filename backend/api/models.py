@@ -125,8 +125,8 @@ class TrainingAttendance(models.Model):
 
 # ---------------------- Injury Model ----------------------
 class Injury(models.Model):
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name="injuries")
-    date = models.DateField(auto_now_add=True)
+    artist = models.ForeignKey("Artist", on_delete=models.CASCADE, related_name="injuries")
+    date = models.DateField()
     injury_type = models.CharField(max_length=255)
     severity = models.CharField(max_length=10, choices=[('Mild', 'Mild'), ('Moderate', 'Moderate'), ('Severe', 'Severe')])
     coach_remarks = models.TextField(blank=True, null=True)

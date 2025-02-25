@@ -90,9 +90,9 @@ class CaptchaSerializer(serializers.Serializer):
 # ---------------------- Artist Serializer ----------------------
 class ArtistSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    total_sessions = serializers.IntegerField(source="total_sessions", read_only=True)
-    total_training_hours = serializers.IntegerField(source="total_training_hours", read_only=True)
-    total_performance_hours = serializers.IntegerField(source="total_performance_hours", read_only=True)
+    total_sessions = serializers.IntegerField(read_only=True)
+    total_training_hours = serializers.IntegerField(read_only=True)
+    total_performance_hours = serializers.IntegerField(read_only=True)
     attendance_rate = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
 
     class Meta:
@@ -142,7 +142,8 @@ class TrainingAttendanceSerializer(serializers.ModelSerializer):
 
 # Injury Serializer
 class InjurySerializer(serializers.ModelSerializer):
-    artist = ArtistSerializer()
+    artist = serializers.PrimaryKeyRelatedField(queryset=Artist.objects.all())
+    artist_name = serializers.CharField(source='artist.user.full_name', read_only=True)
     date = serializers.DateField()
     injury_type = serializers.CharField(max_length=255)
     severity = serializers.ChoiceField(choices=[('Mild', 'Mild'), ('Moderate', 'Moderate'), ('Severe', 'Severe')])
@@ -150,7 +151,7 @@ class InjurySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Injury
-        fields = ['id', 'artist', 'date', 'injury_type', 'severity', 'coach_remarks']
+        fields = ['id', 'artist', 'artist_name', 'date', 'injury_type', 'severity', 'coach_remarks']
 
 # Club Activity Serializer
 class ClubActivitySerializer(serializers.ModelSerializer):

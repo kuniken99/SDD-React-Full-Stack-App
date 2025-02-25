@@ -7,21 +7,22 @@ const RecordInjuries = () => {
     const [artistInfo, setArtistInfo] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const [newInjury, setNewInjury] = useState({
-        injury_date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split('T')[0],
         injury_type: "",
         severity: "Moderate",
     });
+    
+    const fetchInjuryData = async () => {
+        try {
+            const response = await api.get("/api/artist-injuries/");
+            setInjuries(response.data.injuries);
+            setArtistInfo(response.data.artist);
+        } catch (error) {
+            console.error("Error fetching injury data:", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchInjuryData = async () => {
-            try {
-                const response = await api.get("/api/artist-injuries/");
-                setInjuries(response.data.injuries);
-                setArtistInfo(response.data.artist);
-            } catch (error) {
-                console.error("Error fetching injury data:", error);
-            }
-        };
 
         fetchInjuryData();
     }, []);
@@ -37,7 +38,7 @@ const RecordInjuries = () => {
             await api.post("/api/artist-injuries/", newInjury);
             setShowForm(false);
             setNewInjury({
-                injury_date: new Date().toISOString().split('T')[0],
+                date: new Date().toISOString().split('T')[0],
                 injury_type: "",
                 severity: "Moderate",
             });
@@ -49,9 +50,12 @@ const RecordInjuries = () => {
 
     if (!artistInfo) return <p>Loading artist info...</p>;
 
+    // Sort injuries by date in descending order
+    const sortedInjuries = [...injuries].sort((a, b) => new Date(b.date) - new Date(a.date));
+
     return (
         <div className="injuries-page">
-            <h1>Injury Records for {artistInfo.full_name}</h1>
+            <h1>Injury Records for {artistInfo.user.full_name}</h1>
             <p>Total Injuries: {injuries.length}</p>
             <div className="table-container">
                 <table className="table">
@@ -65,10 +69,10 @@ const RecordInjuries = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {injuries.map((injury, index) => (
+                        {sortedInjuries.map((injury, index) => (
                             <tr key={injury.id}>
                                 <td>{index + 1}</td>
-                                <td>{injury.injury_date}</td>
+                                <td>{injury.date}</td>
                                 <td>{injury.injury_type}</td>
                                 <td>{injury.severity}</td>
                                 <td>{injury.coach_remarks}</td>
@@ -83,7 +87,7 @@ const RecordInjuries = () => {
                     <form onSubmit={handleSubmit}>
                         <label>
                             Injury Date:
-                            <input type="date" name="injury_date" value={newInjury.injury_date} onChange={handleInputChange} />
+                            <input type="date" name="date" value={newInjury.date} onChange={handleInputChange} />
                         </label>
                         <label>
                             Injury Type:

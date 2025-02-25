@@ -120,7 +120,14 @@ class VerifyOTPAndChangePasswordView(APIView):
         
         return Response({"error": "OTP not found."}, status=status.HTTP_400_BAD_REQUEST)
     
+class ArtistListView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        artists = Artist.objects.all()
+        serializer = ArtistSerializer(artists, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
 # ---------------------- Get Artist Info (Protected) ----------------------
 class ArtistInfoView(APIView):
     permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
@@ -289,7 +296,22 @@ class ArtistTrainingSessionsView(APIView):
             return Response({"detail": "Artist profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
-# ---------------------- Get Artist Injuries ----------------------
+# # ---------------------- Get Artist Injuries ----------------------
+# class ArtistInjuriesView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user  # Authenticated user
+
+#         # Fetch artist injuries for the authenticated user
+#         try:
+#             artist_profile = user.artist_profile
+#             injuries = artist_profile.injuries.all()
+#             serializer = InjurySerializer(injuries, many=True)
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         except Artist.DoesNotExist:
+#             return Response({"detail": "Artist profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
 class ArtistInjuriesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -301,10 +323,28 @@ class ArtistInjuriesView(APIView):
             artist_profile = user.artist_profile
             injuries = artist_profile.injuries.all()
             serializer = InjurySerializer(injuries, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({
+                "artist": ArtistSerializer(artist_profile).data,
+                "injuries": serializer.data
+            }, status=status.HTTP_200_OK)
         except Artist.DoesNotExist:
             return Response({"detail": "Artist profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
+    def post(self, request):
+        user = request.user  # Authenticated user
+
+        # Check if the user is an artist
+        if user.role != 'artist':
+            return Response({"error": "Only artists can add injuries."}, status=status.HTTP_403_FORBIDDEN)
+
+        data = request.data.copy()
+        data['artist'] = user.artist_profile.id  # Set the artist field to the authenticated user's artist profile
+
+        serializer = InjurySerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # ---------------------- Get Club Activities for Artist ----------------------
 class ArtistClubActivitiesView(APIView):
@@ -360,41 +400,100 @@ class UpdatePasswordView(APIView):
             user.save()
             return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
         return Response({"error": "Password is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-# ---------------------- Get All Injuries (For Coach and Director) ----------------------
-class AllInjuriesView(APIView):
+    
+# ---------------------- get: Get All Injuries (For Coach and Director) ----------------------
+# ---------------------- post: Create New Injury (For Coach and Artist) ----------------------
+class ManageInjuriesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user  # Authenticated user
-
-        # Check if the user is a coach or director, since artists can't view all injuries
+        user = request.user
         if user.role not in ['coach', 'director']:
-            return Response({"detail": "You do not have permission to view this data."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "Only coaches or directors can view injuries."}, status=status.HTTP_403_FORBIDDEN)
 
-        # Fetch all injuries
-        injuries = Injury.objects.all()
+        injuries = Injury.objects.all().order_by('date', 'artist__user__full_name', 'injury_type')
         serializer = InjurySerializer(injuries, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-# ---------------------- Create New Injury (For Coach) ----------------------
-class AddInjuryView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def post(self, request):
-        user = request.user  # Authenticated user
-
-        # Check if the user is a coach
+        user = request.user
         if user.role != 'coach':
-            return Response({"detail": "Only coaches can add injuries."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "Only coaches can add injuries."}, status=status.HTTP_403_FORBIDDEN)
 
-        # Deserialize data and create new injury
         serializer = InjurySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request):
+        user = request.user
+        if user.role != 'coach':
+            return Response({"error": "Only coaches can update injuries."}, status=status.HTTP_403_FORBIDDEN)
+
+        injury_id = request.data.get('id')
+        try:
+            injury = Injury.objects.get(id=injury_id)
+        except Injury.DoesNotExist:
+            return Response({"error": "Injury not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = InjurySerializer(injury, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        user = request.user
+        if user.role != 'coach':
+            return Response({"error": "Only coaches can delete injuries."}, status=status.HTTP_403_FORBIDDEN)
+
+        injury_id = request.data.get('id')
+        try:
+            injury = Injury.objects.get(id=injury_id)
+        except Injury.DoesNotExist:
+            return Response({"error": "Injury not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        injury.delete()
+        return Response({"message": "Injury deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+
+# # ---------------------- Get All Injuries (For Coach and Director) ----------------------
+# class AllInjuriesView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user  # Authenticated user
+
+#         # Check if the user is a director, since artists can't view all injuries
+#         if user.role not in ['coach', 'director']:
+#             return Response({"detail": "You do not have permission to view this data."}, status=status.HTTP_403_FORBIDDEN)
+
+#         # Fetch all injuries
+#         injuries = Injury.objects.all()
+#         serializer = InjurySerializer(injuries, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# # ---------------------- Create New Injury (For Coach and Artist) ----------------------
+# class AddInjuryView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request):
+#         user = request.user  # Authenticated user
+
+#         # Check if the user is a coach
+#         if user.role == 'director':
+#             return Response({"detail": "Director cannot add injuries."}, status=status.HTTP_403_FORBIDDEN)
+
+#         # Deserialize data and create new injury
+#         serializer = InjurySerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 # ---------------------- Create New Training Session (For Coach) ----------------------
@@ -507,9 +606,8 @@ class DirectorDashboardView(APIView):
         total_artists = Artist.objects.count()
         total_sessions = TrainingSession.objects.count()
         total_hours_logged = TrainingSession.objects.aggregate(Sum('duration'))['duration__sum']
-        ongoing_injuries = Injury.objects.filter(severity="Ongoing").count()
         severe_injuries = Injury.objects.filter(severity="Severe").count()
-        recovering_injuries = Injury.objects.filter(severity="Recovering").count()
+        recovering_injuries = Injury.objects.filter(severity="Mild").count()
 
         # Top 3 artists with the most training sessions
         top_artists = (
@@ -525,7 +623,7 @@ class DirectorDashboardView(APIView):
             'total_artists': total_artists,
             'total_sessions': total_sessions,
             'total_hours_logged': total_hours_logged,
-            'ongoing_injuries': ongoing_injuries,
+            'ongoing_injuries': Injury.objects.count(),
             'severe_injuries': severe_injuries,
             'recovering_injuries': recovering_injuries,
             'top_artists': [{'name': artist.user.full_name, 'attendance': artist.session_count} for artist in top_artists],
@@ -546,9 +644,9 @@ class CoachDashboardView(APIView):
             "full_name": user.full_name,
             "total_sessions":  TrainingSession.objects.count(),
             "total_hours_logged": sum([session.duration for session in TrainingSession.objects.all()]) / 60,
-            "ongoing_injuries": Injury.objects.filter(severity="Ongoing").count(),
+            "ongoing_injuries": Injury.objects.count(),
             "severe_injuries": Injury.objects.filter(severity="Severe").count(),
-            "recovering_injuries": Injury.objects.filter(severity="Recovering").count(),
+            "recovering_injuries": Injury.objects.filter(severity="Mild").count(),
         }
         return Response(data)
     
