@@ -31,6 +31,7 @@ from api.views import (
     ArtistListView,
     TrainingSessionListCreateView,
     TrainingSessionDetailView,
+    ClubActivityListView,
 )
 
 urlpatterns = [
@@ -47,7 +48,7 @@ urlpatterns = [
     path('api/artist-info/', ArtistInfoView.as_view(), name='artist-info'),
     path('api/artist-training-sessions/', ArtistTrainingSessionsView.as_view(), name='artist-training-sessions'),
     path('api/artist-injuries/', ArtistInjuriesView.as_view(), name='artist-injuries'),
-    path('api/artist/club-activities/', ArtistClubActivitiesView.as_view(), name='artist-club-activities'),
+    path('api/artist-club-activities/', ArtistClubActivitiesView.as_view(), name='artist-club-activities'),
     path('api/update-full-name/', UpdateFullNameView.as_view(), name='update_full_name'),
     path('api/update-email/', UpdateEmailView.as_view(), name='update_email'),
     
@@ -61,7 +62,7 @@ urlpatterns = [
     # ---------------------- Coach/Director Views ----------------------
     path('api/manage-injuries/', ManageInjuriesView.as_view(), name='manage-injuries'),
     path('api/coach/mark-attendance/', MarkAttendanceView.as_view(), name='mark-attendance'),  # Only for coach
-    path('api/coach/director/create-club-activity/', CreateClubActivityView.as_view(), name='create-club-activity'),  # Coach and Director
+    path('api/create-club-activity/', CreateClubActivityView.as_view(), name='create-club-activity'),  # Coach and Director
     path('director-dashboard/', DirectorDashboardView.as_view(), name='director-dashboard'),
     path('coach-dashboard/', CoachDashboardView.as_view(), name='coach-dashboard'),
     path('api/director-info/', DirectorInfoView.as_view(), name='director-info'),
@@ -70,6 +71,8 @@ urlpatterns = [
     path('api/training-sessions/', TrainingSessionListCreateView.as_view(), name='training-session'),
     path('api/training-sessions/<int:pk>/', TrainingSessionDetailView.as_view(), name='training-session-detail'),
     path('api/add-training-session/', AddTrainingSessionView.as_view(), name='add-training-session'),
+    path('api/artist-club-activities/<int:activity_id>/<str:action>/', ArtistClubActivitiesView.as_view(), name='artist-club-activities-action'),
+    path('api/club-activities/', ClubActivityListView.as_view(), name='club-activities'),
 ]
 
 if settings.DEBUG:

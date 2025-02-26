@@ -94,10 +94,11 @@ class ArtistSerializer(serializers.ModelSerializer):
     total_training_hours = serializers.IntegerField(read_only=True)
     total_performance_hours = serializers.IntegerField(read_only=True)
     attendance_rate = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
-
+    total_activities_joined = serializers.IntegerField(read_only=True)
+    
     class Meta:
         model = Artist
-        fields = ['id', 'user', 'total_sessions', 'total_training_hours', 'total_performance_hours', 'attendance_rate']
+        fields = ['id', 'user', 'total_sessions', 'total_training_hours', 'total_performance_hours', 'attendance_rate', 'total_activities_joined']
 
 # Coach Serializer
 class CoachSerializer(serializers.ModelSerializer):
@@ -162,7 +163,16 @@ class InjurySerializer(serializers.ModelSerializer):
 class ClubActivitySerializer(serializers.ModelSerializer):
     registered_participants = ArtistSerializer(many=True, read_only=True)
     status = serializers.ChoiceField(choices=ClubActivity.STATUS_CHOICES)
+    participants_joined = serializers.IntegerField(read_only=True)
+    joined = serializers.SerializerMethodField()
 
     class Meta:
         model = ClubActivity
-        fields = ['id', 'name', 'date', 'location', 'max_participants', 'registered_participants', 'status', 'description']
+        fields = ['id', 'name', 'date', 'location', 'max_participants', 'registered_participants', 'status', 'description', 'participants_joined', 'joined']
+
+    def get_joined(self, obj):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            artist_profile = request.user.artist_profile
+            return artist_profile in obj.registered_participants.all()
+        return False

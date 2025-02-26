@@ -6,24 +6,45 @@ const ViewClubActivities = () => {
     const [clubActivities, setClubActivities] = useState([]);
     const [artistInfo, setArtistInfo] = useState(null);
 
-    useEffect(() => {
-        const fetchClubActivities = async () => {
-            try {
-                const response = await api.get("/api/artist-club-activities/");
-                setClubActivities(response.data.activities);
-                setArtistInfo(response.data.artist);
-            } catch (error) {
-                console.error("Error fetching club activities:", error);
-            }
-        };
+    const fetchClubActivities = async () => {
+        try {
+            const response = await api.get("/api/artist-club-activities/");
+            setClubActivities(response.data.activities);
+            setArtistInfo(response.data.artist);
+        } catch (error) {
+            console.error("Error fetching club activities:", error);
+        }
+    };
 
+    useEffect(() => {
         fetchClubActivities();
     }, []);
 
     const handleJoinUnjoin = async (activityId, action) => {
         try {
             await api.post(`/api/artist-club-activities/${activityId}/${action}/`);
-            fetchClubActivities();
+            // Update the state directly instead of refetching
+            setClubActivities((prevActivities) =>
+                prevActivities.map((activity) =>
+                    activity.id === activityId
+                        ? {
+                              ...activity,
+                              joined: action === "join",
+                              participants_joined:
+                                  action === "join"
+                                      ? (activity.participants_joined || 0) + 1
+                                      : (activity.participants_joined || 0) - 1,
+                          }
+                        : activity
+                )
+            );
+            setArtistInfo((prevArtistInfo) => ({
+                ...prevArtistInfo,
+                total_activities_joined:
+                    action === "join"
+                        ? prevArtistInfo.total_activities_joined + 1
+                        : prevArtistInfo.total_activities_joined - 1,
+            }));
         } catch (error) {
             console.error(`Error ${action}ing activity:`, error);
         }
@@ -45,18 +66,20 @@ const ViewClubActivities = () => {
                             <th>Location</th>
                             <th>Participants Joined</th>
                             <th>Status</th>
+                            <th>Descriptions</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {clubActivities.map((activity, index) => (
-                            <tr key={activity.id}>
+                            <tr key={activity.id} className={activity.joined ? "joined" : ""}>
                                 <td>{index + 1}</td>
                                 <td>{activity.name}</td>
                                 <td>{activity.date}</td>
                                 <td>{activity.location}</td>
                                 <td>{activity.participants_joined}/{activity.max_participants}</td>
                                 <td>{activity.status}</td>
+                                <td>{activity.description}</td>
                                 <td>
                                     {activity.joined ? (
                                         <button onClick={() => handleJoinUnjoin(activity.id, 'unjoin')} className="cta-button">Unjoin</button>

@@ -53,6 +53,7 @@ class Artist(models.Model):
     total_training_hours = models.PositiveIntegerField(default=0)  # Total hours spent in training
     total_performance_hours = models.PositiveIntegerField(default=0)  # Total hours spent on performance
     attendance_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)  # Attendance rate in percentage
+    total_activities_joined = models.PositiveIntegerField(default=0)  # Total number of activities joined
     
     def __str__(self):
         return self.user.full_name
@@ -156,7 +157,8 @@ class ClubActivity(models.Model):
     registered_participants = models.ManyToManyField(Artist, related_name="club_activities", blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Upcoming')
     description = models.TextField(blank=True, null=True)
-
+    participants_joined = models.IntegerField(default=0)
+    
     class Meta:
         ordering = ['date']
 

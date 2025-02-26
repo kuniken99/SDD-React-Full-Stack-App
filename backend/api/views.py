@@ -152,6 +152,7 @@ class ArtistInfoView(APIView):
                 "total_sessions": artist_profile.total_sessions,
                 "total_training_hours": artist_profile.total_training_hours,
                 "total_performance_hours": artist_profile.total_performance_hours,
+                "total_activities_joined": artist_profile.total_activities_joined,
             }, status=status.HTTP_200_OK)
         except (Artist.DoesNotExist, ObjectDoesNotExist):
             print("Artist profile not found for", user.full_name)
@@ -330,21 +331,6 @@ class ArtistInjuriesView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ---------------------- Get Club Activities for Artist ----------------------
-class ArtistClubActivitiesView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user  # Authenticated user
-
-        # Fetch club activities for the authenticated user
-        try:
-            artist_profile = user.artist_profile
-            activities = artist_profile.club_activities.all()
-            serializer = ClubActivitySerializer(activities, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Artist.DoesNotExist:
-            return Response({"detail": "Artist profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
 class UpdateFullNameView(APIView):
     permission_classes = [IsAuthenticated]
@@ -599,6 +585,11 @@ class MarkAttendanceView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
+
+
+
 # ---------------------- Create Club Activity (For Coach or Director) ----------------------
 class CreateClubActivityView(APIView):
     permission_classes = [IsAuthenticated]
@@ -617,6 +608,62 @@ class CreateClubActivityView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+# ---------------------- Get Club Activities for Artist ----------------------
+class ArtistClubActivitiesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.role != 'artist':
+            return Response({"detail": "Only artists can view club activities."}, status=status.HTTP_403_FORBIDDEN)
+
+        artist_profile = user.artist_profile
+        activities = ClubActivity.objects.all()
+        for activity in activities:
+            activity.joined = artist_profile in activity.registered_participants.all()
+            activity.participants_joined = activity.registered_participants.count()
+
+        serializer = ClubActivitySerializer(activities, many=True, context={'request': request})
+        artist_serializer = ArtistSerializer(artist_profile)
+        return Response({"activities": serializer.data, "artist": artist_serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, activity_id, action):
+        user = request.user
+        if user.role != 'artist':
+            return Response({"detail": "Only artists can join/unjoin club activities."}, status=status.HTTP_403_FORBIDDEN)
+
+        artist_profile = user.artist_profile
+        try:
+            activity = ClubActivity.objects.get(id=activity_id)
+            if action == 'join':
+                activity.registered_participants.add(artist_profile)
+                artist_profile.total_activities_joined += 1
+            elif action == 'unjoin':
+                activity.registered_participants.remove(artist_profile)
+                artist_profile.total_activities_joined -= 1
+            activity.participants_joined = activity.registered_participants.count()
+            activity.save()
+            artist_profile.save()
+            return Response({"message": f"Successfully {action}ed the activity."}, status=status.HTTP_200_OK)
+        except ClubActivity.DoesNotExist:
+            return Response({"detail": "Club activity not found."}, status=status.HTTP_404_NOT_FOUND)
+
+class ClubActivityListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        activities = ClubActivity.objects.all()
+        serializer = ClubActivitySerializer(activities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
 
 # old one using User instead of Artist object
 # class DirectorDashboardView(APIView):
