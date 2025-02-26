@@ -17,6 +17,7 @@ const Register = () => {
     const [dob, setDob] = useState("");
     const [guardian_name, setGuardian_Name] = useState("");
     const [coach_name, setCoach_name] = useState(""); // Coach selection if artist is selected
+    const [coaches, setCoaches] = useState([]); // List of coaches
     const [error, setError] = useState("");
     const [captchaValue, setCaptchaValue] = useState(null);
     const [otp, setOtp] = useState("");
@@ -35,6 +36,20 @@ const Register = () => {
     };
 
     useEffect(() => {
+        // Fetch coaches from the backend
+        const fetchCoaches = async () => {
+            try {
+                const response = await axios.get("http://localhost:8000/api/coaches/");
+                setCoaches(response.data);
+            } catch (error) {
+                console.error("Error fetching coaches:", error);
+            }
+        };
+
+        fetchCoaches();
+    }, []);
+
+    useEffect(() => {
         // Check if the age is below 12
         if (dob) {
             const age = calculateAge(dob);
@@ -45,6 +60,15 @@ const Register = () => {
             }
         }
     }, [dob]);
+
+    useEffect(() => {
+        if (error) {
+            const timer = setTimeout(() => {
+                setError("");
+            }, 5000); // Clear error message after 5 seconds
+            return () => clearTimeout(timer); // Clear timeout if component unmounts
+        }
+    }, [error]);
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -84,13 +108,16 @@ const Register = () => {
         try {
             await axios.post("http://localhost:8000/api/user/verify-otp/", { otp, email });
             setRegistrationSuccess(true);
+            setTimeout(() => {
+                window.location.href = '/login'; // Redirect to login page after 2 seconds
+            }, 2000);
         } catch (error) {
             console.error("OTP verification failed:", error);
             setError("Failed to verify OTP. Please check the OTP and try again.");
         }
     };
 
-    if (registrationSuccess) return <h1>Registration Successful! You can now log in.</h1>;
+    if (registrationSuccess) return <h1>Registration Successful! You can now Log In.</h1>;
 
     return (
         <div className="register-container">
@@ -172,9 +199,11 @@ const Register = () => {
                                     <option value="" disabled >
                                         Please Select Coach
                                     </option>
-                                    <option value="coach1">Coach Eugene Lee</option>
-                                    <option value="coach2">Coach Edwin Tan</option>
-                                    <option value="coach3">Coach Lim Wei Lin</option>
+                                    {coaches.map((coach) => (
+                                        <option key={coach.id} value={coach.user.full_name}>
+                                            {coach.user.full_name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         )}

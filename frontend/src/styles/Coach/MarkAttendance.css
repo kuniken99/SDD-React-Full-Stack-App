@@ -1,0 +1,36 @@
+.mark-attendance {
+    padding: 20px;
+}
+
+.mark-attendance h1 {
+    margin-bottom: 20px;
+}
+
+.mark-attendance table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.mark-attendance table th,
+.mark-attendance table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.mark-attendance table th {
+    background-color: #f2f2f2;
+}
+
+.mark-attendance .cta-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.mark-attendance .cta-button:hover {
+    background-color: #45a049;
+}

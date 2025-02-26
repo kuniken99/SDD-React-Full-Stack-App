@@ -10,7 +10,7 @@ const UpdateTrainingStats = () => {
         session_name: "",
         skills_improved: "",
         performance_rating: "",
-        artist: "",
+        artists: [],  // Change to array for multiple artists
         duration: "",
         coach_notes: "",
         coach_name: ""
@@ -58,7 +58,12 @@ const UpdateTrainingStats = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setNewTraining({ ...newTraining, [name]: value });
+        if (name === "artists") {
+            const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+            setNewTraining({ ...newTraining, [name]: selectedOptions });
+        } else {
+            setNewTraining({ ...newTraining, [name]: value });
+        }
     };
 
     const addTraining = async () => {
@@ -76,7 +81,7 @@ const UpdateTrainingStats = () => {
                 session_name: "",
                 skills_improved: "",
                 performance_rating: "",
-                artist: "",
+                artists: [],
                 duration: "",
                 coach_notes: "",
                 coach_name: newTraining.coach_name
@@ -92,7 +97,7 @@ const UpdateTrainingStats = () => {
             session_name: training.session_name,
             skills_improved: training.skills_improved,
             performance_rating: training.performance_rating,
-            artist: training.artist_id,
+            artists: training.artists.map(artist => artist.id),
             duration: training.duration,
             coach_notes: training.coach_notes,
             coach_name: newTraining.coach_name
@@ -137,7 +142,7 @@ const UpdateTrainingStats = () => {
                         <th onClick={() => sortData("id")}>No</th>
                         <th onClick={() => sortData("date")}>Date</th>
                         <th onClick={() => sortData("session_name")}>Session Name</th>
-                        <th onClick={() => sortData("artist_name")}>Artist Name</th>
+                        <th onClick={() => sortData("artist_names")}>Artist Names</th>
                         <th onClick={() => sortData("skills_improved")}>Skills Improved</th>
                         <th onClick={() => sortData("performance_rating")}>Performance Rating</th>
                         <th onClick={() => sortData("duration")}>Duration</th>
@@ -152,7 +157,7 @@ const UpdateTrainingStats = () => {
                             <td>{index + 1}</td>
                             <td>{new Date(training.date).toLocaleDateString()}</td>
                             <td>{training.session_name}</td>
-                            <td>{training.artist_name}</td>
+                            <td>{training.artist_names.join(', ')}</td>
                             <td>{training.skills_improved}</td>
                             <td>{training.performance_rating}</td>
                             <td>{training.duration}</td>
@@ -169,8 +174,8 @@ const UpdateTrainingStats = () => {
             <h2>{isEditing ? "Edit Training" : "Add New Training"}</h2>
             <input type="date" name="date" value={newTraining.date} onChange={handleInputChange} />
             <input type="text" name="session_name" placeholder="Session Name" value={newTraining.session_name} onChange={handleInputChange} />
-            <select name="artist" value={newTraining.artist} onChange={handleInputChange}>
-                <option value="">Select Artist</option>
+            <select name="artists" value={newTraining.artists} onChange={handleInputChange} multiple>
+                <option value="">Select Artists</option>
                 {artists.map((artist) => (
                     <option key={artist.id} value={artist.id}>{artist.user.full_name}</option>
                 ))}

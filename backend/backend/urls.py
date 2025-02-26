@@ -32,6 +32,14 @@ from api.views import (
     TrainingSessionListCreateView,
     TrainingSessionDetailView,
     ClubActivityListView,
+    ClubActivityDetailView,
+    ArtistAttendanceView, 
+    SessionAttendanceView,
+    ManageArtistsView,
+    SendOtpView,
+    ResetPasswordView,
+    CoachListView,
+    
 )
 
 urlpatterns = [
@@ -73,6 +81,14 @@ urlpatterns = [
     path('api/add-training-session/', AddTrainingSessionView.as_view(), name='add-training-session'),
     path('api/artist-club-activities/<int:activity_id>/<str:action>/', ArtistClubActivitiesView.as_view(), name='artist-club-activities-action'),
     path('api/club-activities/', ClubActivityListView.as_view(), name='club-activities'),
+    path('api/club-activities/<int:pk>/', ClubActivityDetailView.as_view(), name='club-activity-detail'),
+    path('api/artist-attendance/', ArtistAttendanceView.as_view(), name='artist-attendance'), 
+    path('api/attendance/<int:session_id>/', SessionAttendanceView.as_view(), name='session-attendance'),
+    path('api/manage-artists/', ManageArtistsView.as_view(), name='manage-artists'),
+    path('api/manage-artists/<int:pk>/', ManageArtistsView.as_view(), name='manage-artist-detail'),
+    path('api/send-otp/', SendOtpView.as_view(), name='send-otp'),
+    path('api/reset-password/', ResetPasswordView.as_view(), name='reset-password'),
+    path('api/coaches/', CoachListView.as_view(), name='coach-list'),
 ]
 
 if settings.DEBUG:

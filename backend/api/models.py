@@ -16,7 +16,9 @@ class User(AbstractUser):
     guardian_name = models.CharField(max_length=255, blank=True, null=True, default="N/A")
     coach_name = models.CharField(max_length=255, null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
-
+    failed_login_attempts = models.IntegerField(default=0)
+    lockout_until = models.DateTimeField(null=True, blank=True)
+    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name', 'role', 'dob']
 
@@ -95,7 +97,7 @@ class Director(models.Model):
 # ---------------------- Training Session Model ----------------------
 class TrainingSession(models.Model):
     coach = models.ForeignKey(Coach, on_delete=models.CASCADE, related_name='sessions')
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='training_sessions', default=1)
+    artists = models.ManyToManyField(Artist, related_name='training_sessions')
     date = models.DateField()
     session_name = models.CharField(max_length=255, default="")
     skills_improved = models.TextField(default="")

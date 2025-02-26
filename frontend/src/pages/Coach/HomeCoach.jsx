@@ -41,9 +41,9 @@ const HomeCoach = () => {
                         <h1>WELCOME COACH {data.full_name ? data.full_name.toUpperCase() : "COACH"}!</h1>
                         
                         <h2>Total Sessions Conducted: {data.total_sessions}</h2>
-                        <h2>Total Hours Logged: {data.total_hours_logged.toFixed(2)}</h2>
+                        <h2>Total Training Hours Logged: {data.total_hours_logged.toFixed(2)}</h2>
                         <div className="button-container">
-                            <Link to="/update-training" className="cta-button">+ Add New Training</Link>
+                            <Link to="/update-training" className="cta-button">+ Add New Training Data</Link>
                             <Link to="/mark-attendance" className="cta-button g">+ Mark Attendance</Link>
                             <Link to="/create-club-activities" className="cta-button g">+ Add New Club Activities</Link>
                         </div>

@@ -119,8 +119,8 @@ class DirectorSerializer(serializers.ModelSerializer):
 # Training Session Serializer
 class TrainingSessionSerializer(serializers.ModelSerializer):
     coach_name = serializers.CharField(source='coach.user.full_name', read_only=True)
-    artist_name = serializers.CharField(source='artist.user.full_name', read_only=True)
-    artist = serializers.PrimaryKeyRelatedField(queryset=Artist.objects.all(), write_only=True)
+    artist_names = serializers.SerializerMethodField()
+    artists = ArtistSerializer(many=True, read_only=True)
     coach = serializers.PrimaryKeyRelatedField(queryset=Coach.objects.all(), write_only=True)
 
     # duration = serializers.IntegerField()
@@ -132,19 +132,24 @@ class TrainingSessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrainingSession
-        fields = ['id', 'artist', 'coach', 'date', 'session_name', 'skills_improved', 'performance_rating', 'artist_name', 'duration', 'coach_notes', 'coach_name']
+        fields = ['id', 'artists', 'coach', 'date', 'session_name', 'skills_improved', 'performance_rating', 'artist_names', 'duration', 'coach_notes', 'coach_name']
         # fields = ['id', 'name', 'coach', 'date', 'artists', 'duration', 'location', 'skills_improved', 'performance_rating', 'coach_notes']
 
+    def get_artist_names(self, obj):
+        return [artist.user.full_name for artist in obj.artists.all()]
+    
 # Training Attendance Serializer
 class TrainingAttendanceSerializer(serializers.ModelSerializer):
     artist = ArtistSerializer()
-    session = TrainingSessionSerializer()
-    status = serializers.ChoiceField(choices=TrainingAttendance.STATUS_CHOICES)
+    session_name = serializers.CharField(source='session.session_name', read_only=True)
+    date = serializers.DateField(source='session.date', read_only=True)
     coach_remarks = serializers.CharField(required=False)
+    artistName = serializers.CharField(source='artist.user.full_name', read_only=True)
+    coachName = serializers.CharField(source='session.coach.user.full_name', read_only=True)
 
     class Meta:
         model = TrainingAttendance
-        fields = ['id', 'artist', 'session', 'status', 'coach_remarks']
+        fields = ['id', 'artist', 'session_name', 'date', 'status', 'coach_remarks', 'artistName', 'coachName']
 
 # Injury Serializer
 class InjurySerializer(serializers.ModelSerializer):

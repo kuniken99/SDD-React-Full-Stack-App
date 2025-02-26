@@ -5,11 +5,12 @@ from rest_framework import status
 from django.db.models import Sum, Count, Avg
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
+from django.utils.crypto import get_random_string
 from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import get_user_model
 from rest_framework import viewsets, permissions
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import PermissionDenied
@@ -243,6 +244,7 @@ class VerifyOtpAndActivateUserView(APIView):
             }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get("email", "").strip() # Keep user's input case
@@ -261,15 +263,31 @@ class LoginView(APIView):
 
         print(f"Authentication result: {user}")  # Debugging
 
-        if user and user.check_password(password):
-            # Generate JWT tokens
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                "message": "Login successful.",
-                "access": str(refresh.access_token),
-                "refresh": str(refresh),
-                "role": user.role,  # Send role along with the tokens
-            }, status=status.HTTP_200_OK)
+        if user:
+            if user.lockout_until and timezone.now() < user.lockout_until:
+                lockout_duration = (user.lockout_until - timezone.now()).total_seconds() / 60
+                return Response({"error": f"Account locked. Try again in {int(lockout_duration)} minutes."}, status=status.HTTP_403_FORBIDDEN)
+
+            if user.check_password(password):
+                user.failed_login_attempts = 0
+                user.lockout_until = None
+                user.save()
+
+                # Generate JWT tokens
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    "message": "Login successful.",
+                    "access": str(refresh.access_token),
+                    "refresh": str(refresh),
+                    "role": user.role,  # Send role along with the tokens
+                }, status=status.HTTP_200_OK)
+            else:
+                user.failed_login_attempts += 1
+                if user.failed_login_attempts >= 3:
+                    lockout_duration = (user.failed_login_attempts // 3) * 60  # Lockout duration in seconds
+                    user.lockout_until = timezone.now() + timezone.timedelta(seconds=lockout_duration)
+                user.save()
+                return Response({"error": "Invalid email or password."}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response({"error": "Invalid email or password."}, status=status.HTTP_401_UNAUTHORIZED)
     
@@ -497,7 +515,7 @@ class AddTrainingSessionView(APIView):
         # Get the coach profile
         coach = Coach.objects.filter(user=user).first()
         if not coach:
-            return Response({"detail": "User does not have a coach profile."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Coach profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Ensure coach is assigned before saving
         data = request.data.copy()
@@ -506,7 +524,8 @@ class AddTrainingSessionView(APIView):
         # Validate and save
         serializer = TrainingSessionSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            training_session = serializer.save()
+            training_session.artists.set(data['artists'])  # Set the artists
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -527,15 +546,23 @@ class TrainingSessionListCreateView(APIView):
 
         # Check if the user has a coach profile
         if not hasattr(user, 'coach_profile'):
-            return Response({"detail": "User does not have a coach profile."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Coach profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Deserialize data and create new training session
-        serializer = TrainingSessionSerializer(data=request.data)
+        # Get the coach profile
+        coach = user.coach_profile
+
+        # Ensure coach is assigned before saving
+        data = request.data.copy()
+        data["coach"] = coach.id  # Explicitly set the coach ID
+
+        # Validate and save
+        serializer = TrainingSessionSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            training_session = serializer.save()
+            training_session.artists.set(data['artists'])  # Set the artists
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
 class TrainingSessionDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -565,30 +592,74 @@ class TrainingSessionDetailView(APIView):
             return Response({"message": "Training session deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
         except TrainingSession.DoesNotExist:
             return Response({"detail": "Training session not found."}, status=status.HTTP_404_NOT_FOUND)
-
+        
 # ---------------------- Mark Artist Attendance ----------------------
 class MarkAttendanceView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user = request.user  # Authenticated user
+        session_id = request.data.get('session_id')
+        attendance_data = request.data.get('attendance', [])
 
-        # Check if the user is a coach
-        if user.role != 'coach':
-            return Response({"detail": "Only coaches can mark attendance."}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            session = TrainingSession.objects.get(pk=session_id)
+        except TrainingSession.DoesNotExist:
+            return Response({"detail": "Training session not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Deserialize data and create or update attendance
-        serializer = TrainingAttendanceSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(coach=user.coach_profile)  # Assume coach_profile exists
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Check if attendance has already been marked for this session
+        if TrainingAttendance.objects.filter(session=session).exists():
+            return Response({"detail": "Attendance has already been marked for this session."}, status=status.HTTP_400_BAD_REQUEST)
 
+        for record in attendance_data:
+            try:
+                artist = Artist.objects.get(pk=record['artistId'])
+                TrainingAttendance.objects.create(
+                    session=session,
+                    artist=artist,
+                    status=record['status'],
+                    coach_remarks=record.get('coach_remarks', ''),
+                )
+            except Artist.DoesNotExist:
+                return Response({"detail": f"Artist with ID {record['artistId']} not found."}, status=status.HTTP_404_NOT_FOUND)
 
+        return Response({"message": "Attendance marked successfully."}, status=status.HTTP_200_OK)
 
+class SessionAttendanceView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request, session_id):
+        try:
+            session = TrainingSession.objects.get(pk=session_id)
+            attendance_records = TrainingAttendance.objects.filter(session=session)
+            attendance_serializer = TrainingAttendanceSerializer(attendance_records, many=True)
+            return Response({"attendance": attendance_serializer.data}, status=status.HTTP_200_OK)
+        except TrainingSession.DoesNotExist:
+            return Response({"detail": "Training session not found."}, status=status.HTTP_404_NOT_FOUND)
+        
 
+class ArtistAttendanceView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        user = request.user
+        try:
+            artist_profile = user.artist_profile
+            attendance_records = TrainingAttendance.objects.filter(artist=artist_profile)
+            total_sessions = attendance_records.count()
+            attended_sessions = attendance_records.filter(status='Present').count()
+            attendance_rate = (attended_sessions / total_sessions) * 100 if total_sessions > 0 else 0
+
+            attendance_serializer = TrainingAttendanceSerializer(attendance_records, many=True)
+            artist_serializer = ArtistSerializer(artist_profile)
+            artist_data = artist_serializer.data
+            artist_data['attendance_rate'] = attendance_rate
+
+            return Response({
+                "artist": artist_data,
+                "attendance": attendance_serializer.data
+            }, status=status.HTTP_200_OK)
+        except Artist.DoesNotExist:
+            return Response({"detail": "Artist profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
 # ---------------------- Create Club Activity (For Coach or Director) ----------------------
 class CreateClubActivityView(APIView):
@@ -657,7 +728,35 @@ class ClubActivityListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class ClubActivityDetailView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request, pk):
+        try:
+            activity = ClubActivity.objects.get(pk=pk)
+            serializer = ClubActivitySerializer(activity)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ClubActivity.DoesNotExist:
+            return Response({"detail": "Club activity not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, pk):
+        try:
+            activity = ClubActivity.objects.get(pk=pk)
+            serializer = ClubActivitySerializer(activity, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except ClubActivity.DoesNotExist:
+            return Response({"detail": "Club activity not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk):
+        try:
+            activity = ClubActivity.objects.get(pk=pk)
+            activity.delete()
+            return Response({"message": "Club activity deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        except ClubActivity.DoesNotExist:
+            return Response({"detail": "Club activity not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 
@@ -706,43 +805,45 @@ class ClubActivityListView(APIView):
 
 #         return Response(data, status=200)
 
-
 class DirectorDashboardView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
         if user.role != 'director':
-            return Response({"detail": "User is not a director."}, status=403)
-        
+            return Response({"detail": "Only directors can view this data."}, status=status.HTTP_403_FORBIDDEN)
+
         total_artists = Artist.objects.count()
         total_sessions = TrainingSession.objects.count()
-        total_hours_logged = TrainingSession.objects.aggregate(Sum('duration'))['duration__sum']
+        total_hours_logged = TrainingSession.objects.aggregate(total_hours=Sum('duration'))['total_hours'] or 0
+        ongoing_injuries = Injury.objects.filter(severity="Moderate").count()
         severe_injuries = Injury.objects.filter(severity="Severe").count()
         recovering_injuries = Injury.objects.filter(severity="Mild").count()
 
-        # Top 3 artists with the most training sessions
         top_artists = (
-            Artist.objects.annotate(session_count=Count('training_attendance'))
+            Artist.objects.annotate(session_count=Count('training_sessions'))
             .order_by('-session_count')[:3]
         )
-
-        # Pie chart data for different types of training sessions
-        session_types = TrainingSession.objects.values('session_name').annotate(count=Count('id'))
 
         data = {
             'full_name': user.full_name,
             'total_artists': total_artists,
             'total_sessions': total_sessions,
             'total_hours_logged': total_hours_logged,
-            'ongoing_injuries': Injury.objects.count(),
+            'ongoing_injuries': ongoing_injuries,
             'severe_injuries': severe_injuries,
             'recovering_injuries': recovering_injuries,
-            'top_artists': [{'name': artist.user.full_name, 'attendance': artist.session_count} for artist in top_artists],
-            'session_types': session_types
+            'top_artists': [
+                {
+                    'name': artist.user.full_name,
+                    'profile_picture': artist.user.profile_picture.url if artist.user.profile_picture else '/assets/ProfilePic.png',
+                    'total_sessions': artist.session_count,
+                    'attendance_rate': artist.attendance_rate,
+                } for artist in top_artists
+            ],
         }
 
-        return Response(data, status=200)
+        return Response(data, status=status.HTTP_200_OK)
     
 class CoachDashboardView(APIView):
     permission_classes = [IsAuthenticated]
@@ -753,6 +854,7 @@ class CoachDashboardView(APIView):
             return Response({"detail": "User is not a coach."}, status=403)
         
         data = {
+            "id": user.id,
             "full_name": user.full_name,
             "total_sessions":  TrainingSession.objects.count(),
             "total_hours_logged": sum([session.duration for session in TrainingSession.objects.all()]) / 60,
@@ -893,3 +995,105 @@ class CoachInfoView(APIView):
             return Response({"detail": "User is not a coach."}, status=403)
         serializer = UserSerializer(user)
         return Response(serializer.data)
+    
+class ManageArtistsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        artists = User.objects.filter(role='artist')
+        serializer = UserSerializer(artists, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            if user.role == 'artist':
+                Artist.objects.create(user=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+# Reset Password
+
+class SendOtpView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({"detail": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        otp = random.randint(100000, 999999)  # Generate a 6-digit OTP
+        otp_storage[email] = {"otp": otp, "timestamp": time.time()}
+
+        # Send OTP to user's email
+        send_mail(
+            'Your OTP Code',
+            f'Your OTP code is {otp}',
+            'noreply@dancelah.com',
+            [email],
+            fail_silently=False,
+        )
+
+        return Response({"message": "OTP has been sent successfully."}, status=status.HTTP_200_OK)
+
+class ResetPasswordView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        otp = request.data.get('otp')
+        new_password = request.data.get('new_password')
+
+        if not email or not otp or not new_password:
+            return Response({"detail": "Email, OTP, and new password are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if OTP is valid and not expired
+        if email in otp_storage:
+            stored_otp_data = otp_storage[email]
+            if time.time() - stored_otp_data["timestamp"] < 300:  # OTP is valid for 5 minutes
+                if int(otp) == stored_otp_data["otp"]:
+                    try:
+                        user = User.objects.get(email=email)
+                        user.set_password(new_password)
+                        user.save()
+                        del otp_storage[email]  # Delete OTP after successful use
+                        return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+                    except User.DoesNotExist:
+                        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+                else:
+                    return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                del otp_storage[email]  # Delete expired OTP
+                return Response({"error": "OTP expired."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"error": "OTP not found."}, status=status.HTTP_400_BAD_REQUEST)
+    
+class CoachListView(APIView):
+    def get(self, request):
+        coaches = Coach.objects.all()
+        serializer = CoachSerializer(coaches, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

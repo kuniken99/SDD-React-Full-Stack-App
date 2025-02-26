@@ -1,12 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import "../styles/Login.css";
 import DanceLahLogoHigh from "../assets/DanceLahLogoHigh.png";
 import eyeIcon from "../assets/eyeIcon.png";
 import eyeIconCrossed from "../assets/eyeIconCrossed.png";
-import api from "../api";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
-import LoadingIndicator from "../components/LoadingIndicator";
 import axios from "axios";
 import ReCAPTCHA from 'react-google-recaptcha';
 
@@ -15,10 +11,17 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const [captchaValue, setCaptchaValue] = useState(null);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 5000); // Clear error message after 5 seconds
+      return () => clearTimeout(timer); // Clear timeout if component unmounts
+    }
+  }, [error]);
 
   // Regex pattern to validate email
   const validateEmail = (email) => {
@@ -38,32 +41,32 @@ const Login = () => {
       return;
     }
 
-      try {
-          const response = await axios.post("http://localhost:8000/api/user/login/", {
-              email,
-              password,
-              recaptcha: captchaValue,  // Send reCAPTCHA token to backend
-          });
-          localStorage.setItem("access", response.data.access);
-          localStorage.setItem("refresh", response.data.refresh);
-          localStorage.setItem("role", response.data.role);
+    try {
+        const response = await axios.post("http://localhost:8000/api/user/login/", {
+            email,
+            password,
+            recaptcha: captchaValue,  // Send reCAPTCHA token to backend
+        });
+        localStorage.setItem("access", response.data.access);
+        localStorage.setItem("refresh", response.data.refresh);
+        localStorage.setItem("role", response.data.role);
 
-          // Redirect based on role
-          if (response.data.role === "artist") {
-            window.location.href = "/HomeArtist";
-          } else if (response.data.role === "coach") {
-              window.location.href = "/HomeCoach";
-          } else if (response.data.role === "director") {
-              window.location.href = "/HomeDirector";
-          } else {
-              window.location.href = "/"; // Default fallback
-          }
+        // Redirect based on role
+        if (response.data.role === "artist") {
+          window.location.href = "/HomeArtist";
+        } else if (response.data.role === "coach") {
+            window.location.href = "/HomeCoach";
+        } else if (response.data.role === "director") {
+            window.location.href = "/HomeDirector";
+        } else {
+            window.location.href = "/"; // Default fallback
+        }
 
-      } catch (err) {
-          setError("Invalid credentials. Please try again.");
-          console.error("Login failed:", error);
-      }
-    };
+    } catch (err) {
+      setError(err.response.data.error || "Invalid credentials. Please try again.");
+        console.error("Login failed:", err);
+    }
+  };
 
   return (
     <div className="login-container">
@@ -124,22 +127,5 @@ const Login = () => {
     </div>
   );
 };
-
-// // Simulated API response (Replace with real API call)
-// const fakeLoginAPI = async (email, password) => {
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       if (email === "artist@example.com") {
-//         resolve({ success: true, user: { type: "artist", email } });
-//       } else if (email === "coach@example.com") {
-//         resolve({ success: true, user: { type: "coach", email } });
-//       } else if (email === "director@example.com") {
-//         resolve({ success: true, user: { type: "director", email } });
-//       } else {
-//         resolve({ success: false });
-//       }
-//     }, 1000);
-//   });
-// };
 
 export default Login;

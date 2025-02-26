@@ -24,7 +24,7 @@ const ViewAttendance = () => {
 
     return (
         <div className="attendance-page">
-            <h1>Attendance Records for {artistInfo.full_name}</h1>
+            <h1>Attendance Records for {artistInfo.user.full_name}</h1>
             <p>Attendance Rate: {artistInfo.attendance_rate}%</p>
             <div className="table-container">
                 <table className="table">
