@@ -278,22 +278,6 @@ class VerifyCaptchaView(APIView):
         if serializer.is_valid():
             return Response({'message': 'Captcha verified'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-# ---------------------- Get Artist Training Sessions ----------------------
-class ArtistTrainingSessionsView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user  # Authenticated user
-
-        # Fetch artist training sessions for the authenticated user
-        try:
-            artist_profile = user.artist_profile
-            sessions = artist_profile.training_sessions.all()
-            serializer = TrainingSessionSerializer(sessions, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Artist.DoesNotExist:
-            return Response({"detail": "Artist profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 # # ---------------------- Get Artist Injuries ----------------------
@@ -495,10 +479,60 @@ class ManageInjuriesView(APIView):
 
 
 
+    
+# ---------------------- Get Artist Training Sessions ----------------------
+class ArtistTrainingSessionsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user  # Authenticated user
+
+        # Fetch artist training sessions for the authenticated user
+        try:
+            artist_profile = user.artist_profile
+            sessions = artist_profile.training_sessions.all()
+            serializer = TrainingSessionSerializer(sessions, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Artist.DoesNotExist:
+            return Response({"detail": "Artist profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
 
 # ---------------------- Create New Training Session (For Coach) ----------------------
 class AddTrainingSessionView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user  
+
+        # Ensure the user is a coach
+        if user.role != 'coach':
+            return Response({"detail": "Only coaches can add training sessions."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Get the coach profile
+        coach = Coach.objects.filter(user=user).first()
+        if not coach:
+            return Response({"detail": "User does not have a coach profile."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Ensure coach is assigned before saving
+        data = request.data.copy()
+        data["coach"] = coach.id  # Explicitly set the coach ID
+
+        # Validate and save
+        serializer = TrainingSessionSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save(coach=coach)  # Ensure the coach is saved
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class TrainingSessionListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        sessions = TrainingSession.objects.all()
+        serializer = TrainingSessionSerializer(sessions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         user = request.user  # Authenticated user
@@ -507,12 +541,46 @@ class AddTrainingSessionView(APIView):
         if user.role != 'coach':
             return Response({"detail": "Only coaches can add training sessions."}, status=status.HTTP_403_FORBIDDEN)
 
+        # Check if the user has a coach profile
+        if not hasattr(user, 'coach_profile'):
+            return Response({"detail": "User does not have a coach profile."}, status=status.HTTP_400_BAD_REQUEST)
+
         # Deserialize data and create new training session
         serializer = TrainingSessionSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(coach=user.coach_profile)  # Assume coach_profile exists
+            serializer.save(coach=user.coach_profile)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TrainingSessionDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            session = TrainingSession.objects.get(pk=pk)
+            serializer = TrainingSessionSerializer(session)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except TrainingSession.DoesNotExist:
+            return Response({"detail": "Training session not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, pk):
+        try:
+            session = TrainingSession.objects.get(pk=pk)
+            serializer = TrainingSessionSerializer(session, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except TrainingSession.DoesNotExist:
+            return Response({"detail": "Training session not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk):
+        try:
+            session = TrainingSession.objects.get(pk=pk)
+            session.delete()
+            return Response({"message": "Training session deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        except TrainingSession.DoesNotExist:
+            return Response({"detail": "Training session not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 # ---------------------- Mark Artist Attendance ----------------------

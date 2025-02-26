@@ -35,6 +35,10 @@ class User(AbstractUser):
             from .models import Artist  # Avoid circular import
             if not hasattr(self, 'artist_profile'):  # Ensure artist profile does not already exist
                 Artist.objects.create(user=self)
+        elif is_new and self.role == "coach":
+            from .models import Coach  # Avoid circular import
+            if not hasattr(self, 'coach_profile'):  # Ensure coach profile does not already exist
+                Coach.objects.create(user=self)
 
 class CaptchaVerification(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -73,7 +77,7 @@ class Artist(models.Model):
 
 # ---------------------- Coach Model (For Training Sessions) ----------------------
 class Coach(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='coach_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='coach_profile')
 
     def __str__(self):
         return self.user.full_name
@@ -94,7 +98,6 @@ class TrainingSession(models.Model):
     session_name = models.CharField(max_length=255, default="")
     skills_improved = models.TextField(default="")
     performance_rating = models.IntegerField(default=0)
-    artist_name = models.CharField(max_length=255, default="")
     duration = models.IntegerField()
     coach_notes = models.TextField(default="")
 
@@ -103,7 +106,6 @@ class TrainingSession(models.Model):
 
     def __str__(self):
         return f"{self.session_name} ({self.date}) - {self.coach.user.full_name}"
-        return f"{self.name} ({self.date}) - {self.coach.user.full_name}"
 
 # ---------------------- Training Attendance Model ----------------------
 class TrainingAttendance(models.Model):
@@ -121,7 +123,7 @@ class TrainingAttendance(models.Model):
         unique_together = ('artist', 'session')  # Prevent duplicate attendance entries
 
     def __str__(self):
-        return f"{self.artist.user.full_name} - {self.session.name} ({self.status})"
+        return f"{self.artist.user.full_name} - {self.session.session_name} ({self.status})"
 
 # ---------------------- Injury Model ----------------------
 class Injury(models.Model):

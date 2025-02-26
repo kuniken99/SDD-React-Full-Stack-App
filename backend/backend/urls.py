@@ -29,7 +29,9 @@ from api.views import (
     VerifyOtpAndActivateUserView,
     ManageInjuriesView,
     ArtistListView,
-
+    TrainingSessionListCreateView,
+    TrainingSessionDetailView,
+    RequestEmailChangeOtpAPIView,
 )
 
 urlpatterns = [
@@ -59,7 +61,6 @@ urlpatterns = [
     
     # ---------------------- Coach/Director Views ----------------------
     path('api/manage-injuries/', ManageInjuriesView.as_view(), name='manage-injuries'),
-    path('api/coach/add-training-session/', AddTrainingSessionView.as_view(), name='add-training-session'),  # Only for coach
     path('api/coach/mark-attendance/', MarkAttendanceView.as_view(), name='mark-attendance'),  # Only for coach
     path('api/coach/director/create-club-activity/', CreateClubActivityView.as_view(), name='create-club-activity'),  # Coach and Director
     path('director-dashboard/', DirectorDashboardView.as_view(), name='director-dashboard'),
@@ -67,7 +68,9 @@ urlpatterns = [
     path('api/director-info/', DirectorInfoView.as_view(), name='director-info'),
     path('api/coach-info/', CoachInfoView.as_view(), name='coach-info'),
     path('api/artists/', ArtistListView.as_view(), name='artist-list'), 
-
+    path('api/training-sessions/', TrainingSessionListCreateView.as_view(), name='training-session'),
+    path('api/training-sessions/<int:pk>/', TrainingSessionDetailView.as_view(), name='training-session-detail'),
+    path('api/add-training-session/', AddTrainingSessionView.as_view(), name='add-training-session'),
 ]
 
 if settings.DEBUG:

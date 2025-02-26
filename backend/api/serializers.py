@@ -117,17 +117,20 @@ class DirectorSerializer(serializers.ModelSerializer):
 
 # Training Session Serializer
 class TrainingSessionSerializer(serializers.ModelSerializer):
-    coach = CoachSerializer()
-    artists = ArtistSerializer(many=True, read_only=True)
-    duration = serializers.IntegerField()
-    location = serializers.CharField(max_length=255)
+    coach_name = serializers.CharField(source='coach.user.full_name', read_only=True)
+    artist_name = serializers.CharField(source='artist.user.full_name', read_only=True)
+
+    # duration = serializers.IntegerField()
     skills_improved = serializers.CharField(max_length=255, required=False)
     performance_rating = serializers.IntegerField(required=False)
     coach_notes = serializers.CharField(required=False)
+    date = serializers.DateField()
+    session_name = serializers.CharField(max_length=255)
 
     class Meta:
         model = TrainingSession
-        fields = ['id', 'name', 'coach', 'date', 'artists', 'duration', 'location', 'skills_improved', 'performance_rating', 'coach_notes']
+        fields = ['id', 'date', 'session_name', 'skills_improved', 'performance_rating', 'artist_name', 'duration', 'coach_notes', 'coach_name']
+        # fields = ['id', 'name', 'coach', 'date', 'artists', 'duration', 'location', 'skills_improved', 'performance_rating', 'coach_notes']
 
 # Training Attendance Serializer
 class TrainingAttendanceSerializer(serializers.ModelSerializer):
