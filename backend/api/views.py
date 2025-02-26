@@ -490,12 +490,11 @@ class ArtistTrainingSessionsView(APIView):
         # Fetch artist training sessions for the authenticated user
         try:
             artist_profile = user.artist_profile
-            sessions = artist_profile.training_sessions.all()
+            sessions = TrainingSession.objects.filter(artist=artist_profile)
             serializer = TrainingSessionSerializer(sessions, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Artist.DoesNotExist:
             return Response({"detail": "Artist profile not found."}, status=status.HTTP_404_NOT_FOUND)
-
 
 
 # ---------------------- Create New Training Session (For Coach) ----------------------
@@ -503,7 +502,7 @@ class AddTrainingSessionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user = request.user  
+        user = request.user  # Authenticated user
 
         # Ensure the user is a coach
         if user.role != 'coach':
@@ -521,11 +520,10 @@ class AddTrainingSessionView(APIView):
         # Validate and save
         serializer = TrainingSessionSerializer(data=data)
         if serializer.is_valid():
-            serializer.save(coach=coach)  # Ensure the coach is saved
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class TrainingSessionListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -548,7 +546,7 @@ class TrainingSessionListCreateView(APIView):
         # Deserialize data and create new training session
         serializer = TrainingSessionSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(coach=user.coach_profile)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -581,7 +579,6 @@ class TrainingSessionDetailView(APIView):
             return Response({"message": "Training session deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
         except TrainingSession.DoesNotExist:
             return Response({"detail": "Training session not found."}, status=status.HTTP_404_NOT_FOUND)
-
 
 # ---------------------- Mark Artist Attendance ----------------------
 class MarkAttendanceView(APIView):

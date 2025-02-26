@@ -31,7 +31,6 @@ from api.views import (
     ArtistListView,
     TrainingSessionListCreateView,
     TrainingSessionDetailView,
-    RequestEmailChangeOtpAPIView,
 )
 
 urlpatterns = [
@@ -46,7 +45,7 @@ urlpatterns = [
     path("api/user/verify-otp/", VerifyOtpAndActivateUserView.as_view(), name="verify-otp"),  # OTP verification endpoint
     # ---------------------- Artist Views ----------------------
     path('api/artist-info/', ArtistInfoView.as_view(), name='artist-info'),
-    path('api/artist/training-sessions/', ArtistTrainingSessionsView.as_view(), name='artist-training-sessions'),
+    path('api/artist-training-sessions/', ArtistTrainingSessionsView.as_view(), name='artist-training-sessions'),
     path('api/artist-injuries/', ArtistInjuriesView.as_view(), name='artist-injuries'),
     path('api/artist/club-activities/', ArtistClubActivitiesView.as_view(), name='artist-club-activities'),
     path('api/update-full-name/', UpdateFullNameView.as_view(), name='update_full_name'),
