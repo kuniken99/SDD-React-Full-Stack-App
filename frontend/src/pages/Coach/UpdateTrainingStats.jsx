@@ -10,12 +10,14 @@ const UpdateTrainingStats = () => {
         session_name: "",
         skills_improved: "",
         performance_rating: "",
-        artist_name: "",
+        artist: "",
         duration: "",
         coach_notes: "",
         coach_name: ""
     });
     const [sortConfig, setSortConfig] = useState({ key: "date", direction: "ascending" });
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
         fetchTrainingData();
@@ -61,20 +63,50 @@ const UpdateTrainingStats = () => {
 
     const addTraining = async () => {
         try {
-            await api.post("/api/add-training-session/", newTraining);
+            if (isEditing) {
+                await api.put(`/api/training-sessions/${editingId}/`, newTraining);
+                setIsEditing(false);
+                setEditingId(null);
+            } else {
+                await api.post("/api/add-training-session/", newTraining);
+            }
             fetchTrainingData();
             setNewTraining({
                 date: new Date().toISOString().split('T')[0],
                 session_name: "",
                 skills_improved: "",
                 performance_rating: "",
-                artist_name: "",
+                artist: "",
                 duration: "",
                 coach_notes: "",
                 coach_name: newTraining.coach_name
             });
         } catch (error) {
             console.error("Error adding training:", error);
+        }
+    };
+
+    const editTraining = (training) => {
+        setNewTraining({
+            date: new Date(training.date).toISOString().split('T')[0],
+            session_name: training.session_name,
+            skills_improved: training.skills_improved,
+            performance_rating: training.performance_rating,
+            artist: training.artist_id,
+            duration: training.duration,
+            coach_notes: training.coach_notes,
+            coach_name: newTraining.coach_name
+        });
+        setIsEditing(true);
+        setEditingId(training.id);
+    };
+
+    const deleteTraining = async (id) => {
+        try {
+            await api.delete(`/api/training-sessions/${id}/`);
+            fetchTrainingData();  // Reload data after deletion
+        } catch (error) {
+            console.error("Error deleting training session:", error);
         }
     };
 
@@ -127,27 +159,27 @@ const UpdateTrainingStats = () => {
                             <td>{training.coach_notes}</td>
                             <td>{training.coach_name}</td>
                             <td>
-                                <button>Edit</button>
-                                <button>Delete</button>
+                                <button onClick={() => editTraining(training)}>Edit</button>
+                                <button onClick={() => deleteTraining(training.id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-            <h2>Add New Training</h2>
+            <h2>{isEditing ? "Edit Training" : "Add New Training"}</h2>
             <input type="date" name="date" value={newTraining.date} onChange={handleInputChange} />
             <input type="text" name="session_name" placeholder="Session Name" value={newTraining.session_name} onChange={handleInputChange} />
-            <select name="artist_name" value={newTraining.artist_name} onChange={handleInputChange}>
+            <select name="artist" value={newTraining.artist} onChange={handleInputChange}>
                 <option value="">Select Artist</option>
                 {artists.map((artist) => (
-                    <option key={artist.id} value={artist.user.full_name}>{artist.user.full_name}</option>
+                    <option key={artist.id} value={artist.id}>{artist.user.full_name}</option>
                 ))}
             </select>
             <input type="text" name="skills_improved" placeholder="Skills Improved" value={newTraining.skills_improved} onChange={handleInputChange} />
-            <input type="number" name="performance_rating" placeholder="Performance Rating" value={newTraining.performance_rating} onChange={handleInputChange} min="0" max="10"  style={{width: '160px'}}/>
+            <input type="number" name="performance_rating" placeholder="Performance Rating" value={newTraining.performance_rating} onChange={handleInputChange} min="0" max="10" style={{width: '160px'}}/>
             <input type="number" name="duration" placeholder="Duration (minutes)" value={newTraining.duration} onChange={handleInputChange} />
             <textarea name="coach_notes" placeholder="Coach Notes" value={newTraining.coach_notes} onChange={handleInputChange}></textarea>
-            <button onClick={addTraining}>Add Training</button>
+            <button onClick={addTraining}>{isEditing ? "Update Training" : "Add Training"}</button>
         </div>
     );
 };
