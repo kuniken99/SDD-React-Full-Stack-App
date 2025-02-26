@@ -119,6 +119,8 @@ class DirectorSerializer(serializers.ModelSerializer):
 class TrainingSessionSerializer(serializers.ModelSerializer):
     coach_name = serializers.CharField(source='coach.user.full_name', read_only=True)
     artist_name = serializers.CharField(source='artist.user.full_name', read_only=True)
+    artist = serializers.PrimaryKeyRelatedField(queryset=Artist.objects.all(), write_only=True)
+    coach = serializers.PrimaryKeyRelatedField(queryset=Coach.objects.all(), write_only=True)
 
     # duration = serializers.IntegerField()
     skills_improved = serializers.CharField(max_length=255, required=False)
@@ -129,7 +131,7 @@ class TrainingSessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrainingSession
-        fields = ['id', 'date', 'session_name', 'skills_improved', 'performance_rating', 'artist_name', 'duration', 'coach_notes', 'coach_name']
+        fields = ['id', 'artist', 'coach', 'date', 'session_name', 'skills_improved', 'performance_rating', 'artist_name', 'duration', 'coach_notes', 'coach_name']
         # fields = ['id', 'name', 'coach', 'date', 'artists', 'duration', 'location', 'skills_improved', 'performance_rating', 'coach_notes']
 
 # Training Attendance Serializer

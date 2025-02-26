@@ -94,6 +94,7 @@ class Director(models.Model):
 # ---------------------- Training Session Model ----------------------
 class TrainingSession(models.Model):
     coach = models.ForeignKey(Coach, on_delete=models.CASCADE, related_name='sessions')
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='training_sessions', default=1)
     date = models.DateField()
     session_name = models.CharField(max_length=255, default="")
     skills_improved = models.TextField(default="")

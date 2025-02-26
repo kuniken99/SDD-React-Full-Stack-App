@@ -27,7 +27,6 @@ const ViewTrainingSessions = () => {
                         <tr>
                             <th>No</th>
                             <th>Date</th>
-                            <th>Artist Name</th>
                             <th>Skills Improved</th>
                             <th>Performance Rating</th>
                             <th>Duration (mins)</th>
@@ -39,7 +38,6 @@ const ViewTrainingSessions = () => {
                             <tr key={session.id}>
                                 <td>{index + 1}</td>
                                 <td>{session.date}</td>
-                                <td>{session.artist.user.full_name}</td>
                                 <td>{session.skills_improved}</td>
                                 <td>{session.performance_rating}</td>
                                 <td>{session.duration}</td>
