@@ -15,7 +15,7 @@ from rest_framework import viewsets, permissions
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser, FormParser
-from .models import User, Artist, Coach, Director, TrainingSession, TrainingAttendance, Injury, ClubActivity
+from .models import User, Artist, Coach, Director, TrainingSession, TrainingAttendance, Injury, ClubActivity, UniqueCode
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
@@ -169,6 +169,7 @@ class RegisterView(APIView):
         dob = request.data.get('dob')
         coach_name = request.data.get('coach_name')
         guardian_name = request.data.get('guardian_name', None)  # Optional field
+        unique_code = request.data.get('unique_code')  # Unique code for coach and director
 
         # Validate required fields
         if not all([full_name, email, password, confirm_password, role, dob]):
@@ -184,6 +185,13 @@ class RegisterView(APIView):
         # Check if email already exists
         if User.objects.filter(email__iexact=email).exists():
             return Response({"error": "Email already registered."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate unique code for coach and director roles
+        if role in ['coach', 'director']:
+            if not unique_code:
+                return Response({"error": "Unique code is required for coach and director roles."}, status=status.HTTP_400_BAD_REQUEST)
+            if not UniqueCode.objects.filter(code=unique_code, role=role).exists():
+                return Response({"error": "Invalid unique code."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Create user
         user = User.objects.create_user(

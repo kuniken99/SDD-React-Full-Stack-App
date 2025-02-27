@@ -23,6 +23,7 @@ const Register = () => {
     const [otp, setOtp] = useState("");
     const [otpSent, setOtpSent] = useState(false);
     const [registrationSuccess, setRegistrationSuccess] = useState(false);
+    const [uniqueCode, setUniqueCode] = useState(""); // Unique code for coach and director
 
     const calculateAge = (dob) => {
         const birthDate = new Date(dob);
@@ -94,11 +95,12 @@ const Register = () => {
                 dob,
                 guardian_name,
                 coach_name,
+                unique_code: uniqueCode,  // Send unique code to backend
                 recaptcha: captchaValue,  // Send reCAPTCHA token to backend
             });
             setOtpSent(true);
         } catch (err) {
-            setError("An error occurred. Please try again.");
+            setError(err.response.data.unique_code || "An error occurred. Please try again.");
             console.error("Registration failed:", err);
         }
     };
@@ -205,6 +207,18 @@ const Register = () => {
                                         </option>
                                     ))}
                                 </select>
+                            </div>
+                        )}
+
+                        {role !== "artist" && (
+                            <div>
+                                <label>Unique Code*</label>
+                                <input 
+                                    type="text" 
+                                    value={uniqueCode}
+                                    onChange={(e) => setUniqueCode(e.target.value)}
+                                    required 
+                                />
                             </div>
                         )}
 

@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
 import requests
 from django.conf import settings
-from .models import User, Artist, Coach, Director, TrainingSession, TrainingAttendance, Injury, ClubActivity
+from .models import User, Artist, Coach, Director, TrainingSession, TrainingAttendance, Injury, ClubActivity, UniqueCode
 
 # ---------------------- User Serializer ----------------------
 class UserSerializer(serializers.ModelSerializer):
@@ -14,10 +14,11 @@ class UserSerializer(serializers.ModelSerializer):
 # ---------------------- Register Serializer ----------------------
 class RegisterSerializer(serializers.ModelSerializer):
     confirmPassword = serializers.CharField(write_only=True)
+    unique_code = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'password', 'confirmPassword', 'role', 'dob', 'coach_name', 'guardian_name', 'profile_picture']
+        fields = ['full_name', 'email', 'password', 'confirmPassword', 'role', 'dob', 'coach_name', 'guardian_name', 'profile_picture', 'unique_code']
 
     def validate(self, data):
         # Check if passwords match
@@ -28,11 +29,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         if len(data['password']) < 8:
             raise serializers.ValidationError({"password": "Password must be at least 8 characters."})
 
+        # Validate unique code for coach and director roles
+        if data['role'] in ['coach', 'director']:
+            if 'unique_code' not in data or not data['unique_code']:
+                raise serializers.ValidationError({"unique_code": "Unique code is required for coach and director roles."})
+            if not UniqueCode.objects.filter(code=data['unique_code'], role=data['role']).exists():
+                raise serializers.ValidationError({"unique_code": "Invalid unique code."})
+
         return data
 
     def create(self, validated_data):
         validated_data.pop('confirmPassword')  # Remove confirmPassword field before saving
-        
+        validated_data.pop('unique_code', None)  # Remove unique_code field before saving
+
         # Create user
         user = User.objects.create_user(
             email=validated_data['email'],

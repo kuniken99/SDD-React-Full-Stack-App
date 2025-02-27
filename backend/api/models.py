@@ -143,6 +143,13 @@ class Injury(models.Model):
     def __str__(self):
         return f"{self.artist.user.full_name} - {self.injury_type} ({self.severity})"
 
+class UniqueCode(models.Model):
+    code = models.CharField(max_length=10, unique=True)
+    role = models.CharField(max_length=50, choices=User.ROLE_CHOICES)
+
+    def __str__(self):
+        return f"{self.code} ({self.role})"
+    
 # ---------------------- Club Activity Model ----------------------
 class ClubActivity(models.Model):
     STATUS_CHOICES = [
