@@ -845,26 +845,6 @@ class DirectorDashboardView(APIView):
 
         return Response(data, status=status.HTTP_200_OK)
     
-class CoachDashboardView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        if user.role != 'coach':
-            return Response({"detail": "User is not a coach."}, status=403)
-        
-        data = {
-            "id": user.id,
-            "full_name": user.full_name,
-            "total_sessions":  TrainingSession.objects.count(),
-            "total_hours_logged": sum([session.duration for session in TrainingSession.objects.all()]) / 60,
-            "ongoing_injuries": Injury.objects.count(),
-            "severe_injuries": Injury.objects.filter(severity="Severe").count(),
-            "recovering_injuries": Injury.objects.filter(severity="Mild").count(),
-        }
-        return Response(data)
-    
-
 # class CoachDashboardView(APIView):
 #     permission_classes = [IsAuthenticated]
 
@@ -873,28 +853,41 @@ class CoachDashboardView(APIView):
 #         if user.role != 'coach':
 #             return Response({"detail": "User is not a coach."}, status=403)
         
-#         try:
-#             coach = user.coach_profile
-#             total_sessions = TrainingSession.objects.filter(coach=coach).count()
-#             average_attendance_rate = TrainingSession.objects.filter(coach=coach).aggregate(Avg('attendance_rate'))['attendance_rate__avg']
-#             total_hours_logged = TrainingSession.objects.filter(coach=coach).aggregate(Sum('duration'))['duration__sum']
-#             ongoing_injuries = Injury.objects.filter(status="Ongoing").count()
-#             severe_injuries = Injury.objects.filter(severity="Severe").count()
-#             recovering_injuries = Injury.objects.filter(status="Recovering").count()
+#         data = {
+#             "id": user.id,
+#             "full_name": user.full_name,
+#             "total_sessions":  TrainingSession.objects.count(),
+#             "total_hours_logged": sum([session.duration for session in TrainingSession.objects.all()]) / 60,
+#             "ongoing_injuries": Injury.objects.count(),
+#             "severe_injuries": Injury.objects.filter(severity="Severe").count(),
+#             "recovering_injuries": Injury.objects.filter(severity="Mild").count(),
+#         }
+#         return Response(data)
 
-#             data = {
-#                 "full_name": user.full_name,
-#                 "total_sessions": total_sessions,
-#                 "average_attendance_rate": average_attendance_rate,
-#                 "total_hours_logged": total_hours_logged,
-#                 "ongoing_injuries": ongoing_injuries,
-#                 "severe_injuries": severe_injuries,
-#                 "recovering_injuries": recovering_injuries,
-#             }
-#             return Response(data)
-#         except Coach.DoesNotExist:
-#             return Response({"detail": "Coach profile does not exist."}, status=404)
 
+class CoachDashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.role != 'coach':
+            return Response({"detail": "User is not a coach."}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Calculate total sessions conducted and total training hours logged
+        total_sessions = TrainingSession.objects.filter(coach=user.coach_profile).count()
+        total_hours_logged = TrainingSession.objects.filter(coach=user.coach_profile).aggregate(total_hours=Sum('duration'))['total_hours'] or 0
+
+        data = {
+            "id": user.id,
+            "full_name": user.full_name,
+            "total_sessions": total_sessions,
+            "total_hours_logged": total_hours_logged / 60,  # Convert minutes to hours
+            "ongoing_injuries": Injury.objects.count(),
+            "severe_injuries": Injury.objects.filter(severity="Severe").count(),
+            "recovering_injuries": Injury.objects.filter(severity="Mild").count(),
+        }
+        return Response(data, status=status.HTTP_200_OK)
+    
 
 class TrainingSessionViewSet(viewsets.ModelViewSet):
     queryset = TrainingSession.objects.all()
