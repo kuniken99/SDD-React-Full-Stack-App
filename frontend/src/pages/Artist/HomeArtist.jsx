@@ -50,8 +50,9 @@ const HomeArtist = () => {
                         
                         
                         
-                        <p className="attendance">Attendance Rate: {artistInfo.attendance_rate}% <Link to="/ViewAttendance" className="view-more">View More</Link></p>
-                        <p className="attendance">Total Club Activities: {artistInfo.total_activities_joined} </p>
+                        {/* <p className="attendance">Attendance Rate: {artistInfo.attendance_rate}% <Link to="/view-attendance" className="view-more">View More</Link></p> */}
+                        {/* <Link to="/view-attendance" className="view-more">View Attendance</Link> */}
+                        <p className="attendance">Total Club Activities Joined: {artistInfo.total_activities_joined} </p>
                         <div className="hero-buttons">
                             <Link to="/view-club-activities" className="btn-primary">View Club Activities</Link>
                             <Link to="/record-injuries" className="btn-secondary">+ Report New Injury</Link>

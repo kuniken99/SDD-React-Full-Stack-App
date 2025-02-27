@@ -226,7 +226,7 @@ function DirectorProfile() {
         </div>
 
         <p className="support-message">
-          PS: To change club name, please contact us at {" "}
+          PS: To change date of birth, please contact us at {" "}
           <a href="mailto:support@dancelah.com">support@dancelah.com</a>
         </p>
       </div>
