@@ -262,10 +262,7 @@ class LoginView(APIView):
         if not email or not password:
             return Response({"error": "Email and password are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        print(f"Attempting login with email: {email} and password: {password}")  # Debugging
-
         # Attempt to authenticate the user using email and password
-        # user = authenticate(request, username=email, password=password)
         User = get_user_model()
         user = User.objects.filter(email__iexact=email).first()
 
@@ -274,7 +271,8 @@ class LoginView(APIView):
         if user:
             if user.lockout_until and timezone.now() < user.lockout_until:
                 lockout_duration = (user.lockout_until - timezone.now()).total_seconds() / 60
-                return Response({"error": f"Account locked. Try again in {int(lockout_duration)} minutes."}, status=status.HTTP_403_FORBIDDEN)
+                lockout_duration = max(1, int(lockout_duration))  # Ensure at least 1 minute is shown
+                return Response({"error": f"Account locked. Try again in {lockout_duration} minutes."}, status=status.HTTP_403_FORBIDDEN)
 
             if user.check_password(password):
                 user.failed_login_attempts = 0
@@ -292,7 +290,7 @@ class LoginView(APIView):
             else:
                 user.failed_login_attempts += 1
                 if user.failed_login_attempts >= 3:
-                    lockout_duration = (user.failed_login_attempts // 3) * 60  # Lockout duration in seconds
+                    lockout_duration = (user.failed_login_attempts - 2) * 60  # Lockout duration in seconds
                     user.lockout_until = timezone.now() + timezone.timedelta(seconds=lockout_duration)
                 user.save()
                 return Response({"error": "Invalid email or password."}, status=status.HTTP_401_UNAUTHORIZED)

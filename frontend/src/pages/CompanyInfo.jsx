@@ -15,6 +15,7 @@ function CompanyInfo() {
                     <h2>About Us</h2>
                     <p>
                         Welcome to DanceLah Performance and Dance Group! <br />
+                        A community where passion for performance arts meets the joy of learning and collaboration. 
                         We are a vibrant community of artists, coaches, and directors dedicated to the art
                         of dance and performance. Our group includes individuals aged 7 to 70, providing a
                         platform for creative expression, skill development, and cultural appreciation.
